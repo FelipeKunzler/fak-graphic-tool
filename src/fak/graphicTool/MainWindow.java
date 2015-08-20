@@ -170,13 +170,13 @@ public class MainWindow {
 		fileChooser.setFileFilter(new FileNameExtensionFilter(Messages.getString("MainWindow.ImageFilterDialog.text"), ALLOWED_EXTENSIONS));
 		int result = fileChooser.showOpenDialog(frame);
 		if (result == JFileChooser.APPROVE_OPTION) {
-			picture = new Picture(fileChooser.getSelectedFile().getAbsolutePath());
+			this.picture = new Picture(fileChooser.getSelectedFile().getAbsolutePath());
 			refreshPictureDisplay();
 		}
 	}
 
 	private void refreshPictureDisplay() {
-		ImageIcon stretchedImage = picture.getStretchedImage(this.lbImageViewer.getWidth(),
+		ImageIcon stretchedImage = this.picture.getStretchedImage(this.lbImageViewer.getWidth(),
 				this.lbImageViewer.getHeight());
 		this.lbImageViewer.setIcon(stretchedImage);
 	}
