@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +16,16 @@ import javax.swing.ImageIcon;
 public class Picture {
 	
 	private BufferedImage bufferedImage;
+	
+	private int height;
+	private int width;
+	
 	private int meanUpperHalf;
 	private int medianLowerHalf;
+	private int mean;
+	private int mode;
+	private int variance;
+	
 	
 	public BufferedImage getBufferedImage() {
 		return bufferedImage;
@@ -31,10 +38,25 @@ public class Picture {
 	
 	public Picture (String path){
 		try {
-			this.setBufferedImage(ImageIO.read(new File(path)));
-			this.calculateMean();
-			this.calculateMedian();
+			
+			this.bufferedImage = ImageIO.read(new File(path));
+			
+			this.height = this.bufferedImage.getHeight();
+			this.width = this.bufferedImage.getWidth();
+			
+			this.mean = this.calculateMean();
+			this.meanUpperHalf = this.calculateMeanHalfUpper();
+			this.medianLowerHalf = this.calculateMedianLowerHalf();
+			this.mode = this.calculateMode();
+			
+			this.variance = this.calculateVariance();
 			 
+			System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
+			System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
+			System.out.println(MessageFormat.format("Mode: {0}", this.mode));
+			System.out.println(MessageFormat.format("Mean: {0}", this.mean));
+			System.out.println(MessageFormat.format("Variance: {0}", this.variance));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -50,18 +72,19 @@ public class Picture {
 	}
 	
 	/*
-	 * Calculates the average color at the upper half of the picture
+	 * Calculates the mean color of the picture.
+	 * @param onlyUpperHalf set true if to calculate the mean of only the upper half of the image.
 	 */
-	private void calculateMean(){
+	private int calculateMean(boolean onlyUpperHalf){
 		
-		int height = this.bufferedImage.getHeight();
-		int width = this.bufferedImage.getWidth();
 		long pixelCount = 0;
 		float bucket = 0;
 		
-		for (int y = 0; y < height/2; y++)
+		int consideredHeight = onlyUpperHalf ? this.height/2 : this.height;
+		
+		for (int y = 0; y < consideredHeight; y++)
 		{
-		    for (int x = 0; x < width; x++)
+		    for (int x = 0; x < this.width; x++)
 		    {		    	
 		    	pixelCount++;
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
@@ -69,23 +92,32 @@ public class Picture {
 		    }
 		}
 		
-		this.meanUpperHalf = (int) (((bucket/3) / pixelCount) + 0.5);
-		
-		System.out.println(MessageFormat.format("Mean upper half: {0}", meanUpperHalf));
+		return (int) (((bucket/3) / pixelCount) + 0.5);
 	}
 	
 	/*
-	 * Calculates the median color at the lower half of the picture
+	 * Calculates the mean color of the picture.
 	 */
-	private void calculateMedian(){
-		
-		int height = this.bufferedImage.getHeight();
-		int width = this.bufferedImage.getWidth();
+	private int calculateMean(){
+		return this.calculateMean(false);
+	}
+	
+	/*
+	 * Calculates the mean color at the upper half of the picture.
+	 */
+	private int calculateMeanHalfUpper(){
+		return this.calculateMean(true);
+	}
+	
+	/*
+	 * Calculates the median color at the bottom half the picture
+	 */
+	private int calculateMedianLowerHalf(){
 		
 		List<Float> rgbVector = new ArrayList<Float>();	
-		for (int y = height/2; y < height; y++)
+		for (int y = this.height/2; y < this.height; y++)
 		{
-		    for (int x = 0; x < width; x++)
+		    for (int x = 0; x < this.width; x++)
 		    {		    	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
 	        	rgbVector.add((float) ((c.getRed() + c.getGreen() + c.getBlue()) / 3));
@@ -96,13 +128,57 @@ public class Picture {
 		
 		int lenght = rgbVector.size();
 		if (lenght % 2 == 0){
-		    this.medianLowerHalf = (int) (((rgbVector.get(lenght/2) + rgbVector.get(lenght/2 - 1)) / 2) + 0.5);
+		    return (int) (((rgbVector.get(lenght/2) + rgbVector.get(lenght/2 - 1)) / 2) + 0.5);
 		}
 		else{
-			this.medianLowerHalf = (int) (rgbVector.get(lenght/2) + 0.5);
+			return (int) (rgbVector.get(lenght/2) + 0.5);
+		}
+	}
+	
+	/*
+	 * Calculates the mode of the picture
+	 */
+	private int calculateMode(){
+		
+		int[] counter = new int[256];		
+		int higher = counter.length - 1;
+		
+		for (int y = 0; y < this.height; y++)
+		{
+		    for (int x = 0; x < this.width; x++)
+		    {	
+		        Color c = new Color(this.bufferedImage.getRGB(x, y));
+		        int averageRGB = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        counter[averageRGB]++;
+		        
+		        if (counter[averageRGB] > counter[higher]){
+					higher = averageRGB;
+				}
+		    }
 		}
 		
-		System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
+		return higher;
+	}
+	
+	/*
+	 * Calculates the variance of the picture
+	 */
+	private int calculateVariance(){
+		
+		int bucketVariance = 0;
+		
+		for (int y = 0; y < this.height; y++)
+		{
+		    for (int x = 0; x < this.width; x++)
+		    {	
+		        Color c = new Color(this.bufferedImage.getRGB(x, y));
+		        int averageRGB = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        
+		        bucketVariance += Math.pow((averageRGB - this.mean), 2);
+		    }
+		}
+		
+		return bucketVariance / (this.height * this.width);
 	}
 	
 }
