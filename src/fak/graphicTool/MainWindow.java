@@ -20,13 +20,17 @@ import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainWindow {
+	
+	private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "gif"};
 
 	private JFrame frame;
 	private JLabel lbImageViewer;
+	private JLabel lbMeanUpperHalf;
+	private JLabel lbMedianLowerHalf;
+	private JLabel lbVariance;
+	private JLabel lbMode;
 
 	private Picture picture;
-	
-	private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "gif"};
 
 	/**
 	 * Launch the application.
@@ -51,11 +55,11 @@ public class MainWindow {
 		initialize();
 
 		this.picture = new Picture("res/lena.png");
-		this.refreshPictureDisplay();
+		this.refreshPictureInfo();
 
 		JPanel panelGraphic = new JPanel();
 		panelGraphic.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelGraphic.setBounds(10, 270, 215, 163);
+		panelGraphic.setBounds(10, 277, 215, 156);
 		frame.getContentPane().add(panelGraphic);
 		panelGraphic.setLayout(null);
 
@@ -108,55 +112,91 @@ public class MainWindow {
 
 		JPanel panelButtons = new JPanel();
 		panelButtons.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelButtons.setBounds(10, 35, 215, 113);
+		panelButtons.setBounds(10, 35, 215, 121);
 		frame.getContentPane().add(panelButtons);
 		panelButtons.setLayout(null);
 
 		JButton btnA = new JButton(Messages.getString("MainWindow.btnA.text"));
+		btnA.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('a');
+				refreshPictureInfo();
+			}
+		});
 		btnA.setBounds(10, 11, 89, 23);
 		panelButtons.add(btnA);
 
 		JButton btnB = new JButton(Messages.getString("MainWindow.btnB.text"));
+		btnB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('b');
+				refreshPictureInfo();
+			}
+		});
 		btnB.setBounds(113, 11, 89, 23);
 		panelButtons.add(btnB);
 
 		JButton btnC = new JButton(Messages.getString("MainWindow.btnC.text"));
+		btnC.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('c');
+				refreshPictureInfo();
+			}
+		});
 		btnC.setBounds(10, 44, 89, 23);
 		panelButtons.add(btnC);
 
 		JButton btnD = new JButton(Messages.getString("MainWindow.btnD.text"));
+		btnD.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('d');
+				refreshPictureInfo();
+			}
+		});
 		btnD.setBounds(113, 44, 89, 23);
 		panelButtons.add(btnD);
 
 		JButton btnE = new JButton(Messages.getString("MainWindow.btnE.text"));
+		btnE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('e');
+				refreshPictureInfo();
+			}
+		});
 		btnE.setBounds(10, 78, 89, 23);
 		panelButtons.add(btnE);
 
-		JButton btnOriginal = new JButton(Messages.getString("MainWindow.btnF.text"));
+		JButton btnOriginal = new JButton(Messages.getString("MainWindow.btnOriginal.text"));
+		btnOriginal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.restoreOriginalImage();
+				refreshPictureInfo();
+			}
+		});
 		btnOriginal.setBounds(113, 78, 89, 23);
 		panelButtons.add(btnOriginal);
 
 		JPanel panelInformation = new JPanel();
 		panelInformation.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelInformation.setBounds(10, 159, 215, 100);
+		panelInformation.setBounds(10, 159, 215, 114);
 		frame.getContentPane().add(panelInformation);
 		panelInformation.setLayout(null);
 
-		JLabel labelMean = new JLabel(Messages.getString("MainWindow.labelAverage.text"));
-		labelMean.setBounds(24, 28, 83, 14);
-		panelInformation.add(labelMean);
+		this.lbMeanUpperHalf = new JLabel(Messages.getString("MainWindow.lbMeanUpperHalf.text"));
+		this.lbMeanUpperHalf.setBounds(13, 11, 179, 14);
+		panelInformation.add(this.lbMeanUpperHalf);
 
-		JLabel labelMedian = new JLabel(Messages.getString("MainWindow.labelMedian.text"));
-		labelMedian.setBounds(118, 28, 97, 14);
-		panelInformation.add(labelMedian);
+		this.lbMedianLowerHalf = new JLabel(Messages.getString("MainWindow.lbMedianLowerHalf.text"));
+		this.lbMedianLowerHalf.setBounds(13, 36, 168, 14);
+		panelInformation.add(this.lbMedianLowerHalf);
 
-		JLabel labelRange = new JLabel(Messages.getString("MainWindow.labelRange.text"));
-		labelRange.setBounds(118, 64, 85, 14);
-		panelInformation.add(labelRange);
+		this.lbVariance = new JLabel(Messages.getString("MainWindow.lbVariance.text"));
+		this.lbVariance.setBounds(13, 86, 85, 14);
+		panelInformation.add(this.lbVariance);
 
-		JLabel labelMode = new JLabel(Messages.getString("MainWindow.labelMode.text"));
-		labelMode.setBounds(24, 64, 83, 14);
-		panelInformation.add(labelMode);
+		this.lbMode = new JLabel(Messages.getString("MainWindow.lbMode.text"));
+		this.lbMode.setBounds(13, 61, 83, 14);
+		panelInformation.add(this.lbMode);
 
 		this.lbImageViewer = new JLabel("");
 		this.lbImageViewer.setBounds(235, 35, 398, 398);
@@ -171,14 +211,19 @@ public class MainWindow {
 		int result = fileChooser.showOpenDialog(frame);
 		if (result == JFileChooser.APPROVE_OPTION) {
 			this.picture = new Picture(fileChooser.getSelectedFile().getAbsolutePath());
-			refreshPictureDisplay();
+			refreshPictureInfo();
 		}
 	}
 
-	private void refreshPictureDisplay() {
+	private void refreshPictureInfo() {
 		ImageIcon stretchedImage = this.picture.getStretchedImage(this.lbImageViewer.getWidth(),
 				this.lbImageViewer.getHeight());
 		this.lbImageViewer.setIcon(stretchedImage);
+		
+		this.lbMeanUpperHalf.setText(Messages.getString("MainWindow.lbMeanUpperHalf.text") + Integer.toString(this.picture.getMeanUpperHalf()));
+		this.lbMedianLowerHalf.setText(Messages.getString("MainWindow.lbMedianLowerHalf.text") + Integer.toString(this.picture.getMedianLowerHalf()));
+		this.lbMode.setText(Messages.getString("MainWindow.lbMode.text") + Integer.toString(this.picture.getMode()));
+		this.lbVariance.setText(Messages.getString("MainWindow.lbVariance.text") + Integer.toString(this.picture.getVariance()));
 	}
 
 }

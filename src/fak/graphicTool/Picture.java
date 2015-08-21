@@ -1,6 +1,7 @@
 package fak.graphicTool;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -16,59 +17,223 @@ import javax.swing.ImageIcon;
 public class Picture {
 	
 	private BufferedImage bufferedImage;
+	private BufferedImage originalBufferedImage;
 	
 	private int height;
 	private int width;
 	
 	private int meanUpperHalf;
+	private int median;
 	private int medianLowerHalf;
 	private int mean;
 	private int mode;
 	private int variance;
 	
-	
 	public BufferedImage getBufferedImage() {
 		return bufferedImage;
 	}
+	
+	public int getMeanUpperHalf() {
+		return this.meanUpperHalf;
+	}
+	
+	public int getMedian() {
+		return this.median;
+	}
+	
+	public int getMedianLowerHalf() {
+		return this.medianLowerHalf;
+	}
+	
+	public int getMean() {
+		return this.mean;
+	}
 
-	public void setBufferedImage(BufferedImage bufferedImage) {
-		this.bufferedImage = bufferedImage;
+	public int getMode() {
+		return this.mode;
+	}
+	
+	public int getVariance() {
+		return this.variance;
+	}
+	
+	public ImageIcon getStretchedImage(int viewWidth, int viewHeight){
 		
+		return new ImageIcon(bufferedImage.getScaledInstance(viewWidth, viewHeight, Image.SCALE_SMOOTH));
 	}
 	
 	public Picture (String path){
 		try {
+			this.originalBufferedImage = ImageIO.read(new File(path));
 			
-			this.bufferedImage = ImageIO.read(new File(path));
-			
-			this.height = this.bufferedImage.getHeight();
-			this.width = this.bufferedImage.getWidth();
-			
-			this.mean = this.calculateMean();
-			this.meanUpperHalf = this.calculateMeanHalfUpper();
-			this.medianLowerHalf = this.calculateMedianLowerHalf();
-			this.mode = this.calculateMode();
-			
-			this.variance = this.calculateVariance();
-			 
-			System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
-			System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
-			System.out.println(MessageFormat.format("Mode: {0}", this.mode));
-			System.out.println(MessageFormat.format("Mean: {0}", this.mean));
-			System.out.println(MessageFormat.format("Variance: {0}", this.variance));
+			this.bufferedImage = Picture.copyImage(this.originalBufferedImage);
+			initialize();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public Picture (BufferedImage bufferedImage){
-		//TODO ..
+	public static BufferedImage copyImage(BufferedImage source){
+	    BufferedImage b = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
+	    Graphics g = b.getGraphics();
+	    g.drawImage(source, 0, 0, null);
+	    g.dispose();
+	    return b;
 	}
 	
-	public ImageIcon getStretchedImage(int width, int height){
+	public void restoreOriginalImage(){
 		
-		return new ImageIcon(bufferedImage.getScaledInstance(width, height, Image.SCALE_SMOOTH));
+		this.bufferedImage = Picture.copyImage(this.originalBufferedImage);
+		initialize();
+	}
+	
+	/*
+	 * Modify the picture according to the given exercise.
+	 * @param exercise char corresponding to a specific exercise; 'a', 'b', 'c', 'd' or 'e' only.
+	 */
+	public void modifyImage(char exercise){
+		for (int y = 0; y < this.height; y++)
+		{
+		    for (int x = 0; x < this.width; x++)
+		    {		    	
+		        Color c = new Color(this.bufferedImage.getRGB(x, y));
+		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        
+		        int newValue = 0;
+		        
+		        switch (exercise) {
+					case 'a':
+						newValue = modifyPixelExerciseA(grayScale);
+						break;
+					case 'b':
+						newValue = modifyPixelExerciseB(grayScale);
+						break;
+					case 'c':
+						newValue = modifyPixelExerciseC(grayScale);
+						break;
+					case 'd':
+						newValue = modifyPixelExerciseD(grayScale);
+						break;
+					case 'e':
+						newValue = modifyPixelExerciseE(grayScale);
+						break;
+				}
+		        
+		        if (newValue != grayScale){
+	        		this.bufferedImage.setRGB(x, y, newValue);
+	        	} 
+		    }
+		}
+		
+		// Update all the contents and statistics.
+		initialize();
+		
+	}
+	
+	/*
+	 * Modify the picture according to the following:
+	 * "a)	Valores maiores ou iguais a média de toda a imagem recebem preto."
+	 * Pixels' value that are greater or equal than the mean of the whole image changes to black.
+	 * 
+	 * @param grayScale value of the pixel.
+	 * @return new value of the pixel.
+	 */
+	private int modifyPixelExerciseA(int grayScale){
+		if (grayScale >= this.mean){
+        	return Color.BLACK.getRGB();
+        }
+		
+		return grayScale;
+	}
+	
+	/*
+	 * Modify the picture according to the following:
+	 * "b)	Valores maiores ou iguais a moda de toda a imagem recebem 150."
+	 * Pixels' value that are greater or equal than the mode of the whole image changes to 150.
+	 * 
+	 * @param grayScale value of the pixel.
+	 * @return new value of the pixel.
+	 */
+	private int modifyPixelExerciseB(int grayScale){
+		if (grayScale >= this.mode){
+        	return (int) Math.pow(150, 3)/3;
+        }
+		
+		return grayScale;
+	}
+	
+	/*
+	 * Modify the picture according to the following:
+	 * "c)	Valores maiores ou iguais a mediana de toda a imagem recebem branco."
+	 * Pixels' value that are greater or equal than the median of the whole image changes to white.
+	 * 
+	 * @param grayScale value of the pixel.
+	 * @return new value of the pixel.
+	 */
+	private int modifyPixelExerciseC(int grayScale){
+		if (grayScale >= this.median){
+        	return Color.WHITE.getRGB();
+        }
+		
+		return grayScale;
+	}
+	
+	/*
+	 * Modify the picture according to the following:
+	 * "d)	Valores menores que a média de toda a imagem recebem 100."
+	 * Pixels' value that are less than the mean of the whole image changes to 100.
+	 * 
+	 * @param grayScale value of the pixel.
+	 * @return new value of the pixel.
+	 */
+	private int modifyPixelExerciseD(int grayScale){
+		if (grayScale >= this.mean){
+        	return (int) Math.pow(100, 3)/3;
+        }
+		
+		return grayScale;
+	}
+	
+	/*
+	 * Modify the picture according to the following:
+	 * "e)	Valores maiores que a mediana de toda a imagem recebem 255 e menores que a média recebem 0."
+	 * Pixels' value that are greater than the median of the whole image changes to 100, if less than the mean, changes to 0."
+	 * 
+	 * @param grayScale value of the pixel.
+	 * @return new value of the pixel.
+	 */
+	private int modifyPixelExerciseE(int grayScale){
+		if (grayScale > this.median){
+        	return (int) Math.pow(255, 3)/3;
+        }
+		else if (grayScale < this.mean){
+			return 0;
+		}
+		
+		return grayScale;
+	}
+	
+	/*
+	 * Initializes the contents of the class.
+	 */
+	private void initialize(){
+		
+		this.height = this.bufferedImage.getHeight();
+		this.width = this.bufferedImage.getWidth();
+		
+		this.mean = this.calculateMean();
+		this.meanUpperHalf = this.calculateMeanHalfUpper();
+		this.median = this.calculateMedian();
+		this.medianLowerHalf = this.calculateMedianLowerHalf();
+		this.mode = this.calculateMode();
+		this.variance = this.calculateVariance();
+		 
+		System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
+		System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
+		System.out.println(MessageFormat.format("Mode: {0}", this.mode));
+		System.out.println(MessageFormat.format("Mean: {0}", this.mean));
+		System.out.println(MessageFormat.format("Variance: {0}\n", this.variance));
 	}
 	
 	/*
@@ -110,29 +275,45 @@ public class Picture {
 	}
 	
 	/*
-	 * Calculates the median color at the bottom half the picture
+	 * Calculates the median color of the picture.
 	 */
-	private int calculateMedianLowerHalf(){
+	private int calculateMedian(boolean onlyLowerHalf){
 		
-		List<Float> rgbVector = new ArrayList<Float>();	
-		for (int y = this.height/2; y < this.height; y++)
+		int consideredY = onlyLowerHalf ? this.height/2 : 0;
+		
+		List<Float> grayScaleVector = new ArrayList<Float>();	
+		for (int y = consideredY; y < this.height; y++)
 		{
 		    for (int x = 0; x < this.width; x++)
 		    {		    	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
-	        	rgbVector.add((float) ((c.getRed() + c.getGreen() + c.getBlue()) / 3));
+		        grayScaleVector.add((float) ((c.getRed() + c.getGreen() + c.getBlue()) / 3));
 		    }
 		}
 		
-		Collections.sort(rgbVector);
+		Collections.sort(grayScaleVector);
 		
-		int lenght = rgbVector.size();
+		int lenght = grayScaleVector.size();
 		if (lenght % 2 == 0){
-		    return (int) (((rgbVector.get(lenght/2) + rgbVector.get(lenght/2 - 1)) / 2) + 0.5);
+		    return (int) (((grayScaleVector.get(lenght/2) + grayScaleVector.get(lenght/2 - 1)) / 2) + 0.5);
 		}
 		else{
-			return (int) (rgbVector.get(lenght/2) + 0.5);
+			return (int) (grayScaleVector.get(lenght/2) + 0.5);
 		}
+	}
+	
+	/*
+	 * Calculates the median color of the picture.
+	 */
+	private int calculateMedian(){
+		return this.calculateMedian(false);
+	}
+	
+	/*
+	 * Calculates the median color at the bottom half the picture
+	 */
+	private int calculateMedianLowerHalf(){
+		return this.calculateMedian(true);
 	}
 	
 	/*
@@ -148,11 +329,11 @@ public class Picture {
 		    for (int x = 0; x < this.width; x++)
 		    {	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
-		        int averageRGB = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
-		        counter[averageRGB]++;
+		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        counter[grayScale]++;
 		        
-		        if (counter[averageRGB] > counter[higher]){
-					higher = averageRGB;
+		        if (counter[grayScale] > counter[higher]){
+					higher = grayScale;
 				}
 		    }
 		}
@@ -172,9 +353,9 @@ public class Picture {
 		    for (int x = 0; x < this.width; x++)
 		    {	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
-		        int averageRGB = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
 		        
-		        bucketVariance += Math.pow((averageRGB - this.mean), 2);
+		        bucketVariance += Math.pow((grayScale - this.mean), 2);
 		    }
 		}
 		
