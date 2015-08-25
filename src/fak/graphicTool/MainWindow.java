@@ -2,10 +2,11 @@ package fak.graphicTool;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,12 +20,25 @@ import javax.swing.JSeparator;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.xy.DeviationRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
+
 public class MainWindow {
 	
 	private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "gif"};
 
 	private JFrame frame;
 	private JLabel lbImageViewer;
+	private JLabel lbHistogramViewer;
 	private JLabel lbMeanUpperHalf;
 	private JLabel lbMedianLowerHalf;
 	private JLabel lbVariance;
@@ -56,12 +70,6 @@ public class MainWindow {
 
 		this.picture = new Picture("res/lena.png");
 		this.refreshPictureInfo();
-
-		JPanel panelGraphic = new JPanel();
-		panelGraphic.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelGraphic.setBounds(10, 277, 215, 156);
-		frame.getContentPane().add(panelGraphic);
-		panelGraphic.setLayout(null);
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 664, 21);
@@ -201,6 +209,54 @@ public class MainWindow {
 		this.lbImageViewer = new JLabel("");
 		this.lbImageViewer.setBounds(235, 35, 398, 398);
 		frame.getContentPane().add(this.lbImageViewer);
+		
+		this.lbHistogramViewer = new JLabel("");
+		this.lbHistogramViewer.setBounds(3, 271, 229, 165);
+		frame.getContentPane().add(this.lbHistogramViewer);
+	}
+	
+	private void refreshHistogram(){
+		
+		int[] histogram = this.picture.getHistogramValues();
+		
+		final XYSeries series = new XYSeries("");
+		for(int i = 0; i < histogram.length; i++) {
+			series.add(i+2, histogram[i]);
+		}
+		
+        final XYSeriesCollection dataset = new XYSeriesCollection(series);
+
+        PlotOrientation orientation = PlotOrientation.VERTICAL; 
+        JFreeChart chart = ChartFactory.createHistogram(
+        		"", // Title
+        		"", // X label
+        		"", // Y label
+                dataset, // Dataset
+                orientation, // Orientation
+                false, // Legend
+                false, // Tooltips
+                false); // Urls
+        
+        chart.setBackgroundPaint(this.frame.getBackground());
+        
+        XYPlot plot = (XYPlot) chart.getPlot();
+        
+        ValueAxis range = plot.getRangeAxis();
+        range.setVisible(false);      
+        
+        ValueAxis domain = plot.getDomainAxis();
+        domain.setVisible(false);    
+        
+        DeviationRenderer renderer = new DeviationRenderer(true, false);
+        plot.setRenderer(renderer);
+        
+        plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
+        
+        int viewerHeight = this.lbHistogramViewer.getHeight();
+        int viewerWidth = this.lbHistogramViewer.getWidth();
+        BufferedImage bi = chart.createBufferedImage(viewerWidth, viewerHeight);
+        
+        this.lbHistogramViewer.setIcon(new ImageIcon(bi.getScaledInstance(viewerWidth, viewerHeight, Image.SCALE_SMOOTH)));
 	}
 	
 	private void openPictureDialog() {
@@ -219,11 +275,11 @@ public class MainWindow {
 		ImageIcon stretchedImage = this.picture.getStretchedImage(this.lbImageViewer.getWidth(),
 				this.lbImageViewer.getHeight());
 		this.lbImageViewer.setIcon(stretchedImage);
+		this.refreshHistogram();
 		
 		this.lbMeanUpperHalf.setText(Messages.getString("MainWindow.lbMeanUpperHalf.text") + Integer.toString(this.picture.getMeanUpperHalf()));
 		this.lbMedianLowerHalf.setText(Messages.getString("MainWindow.lbMedianLowerHalf.text") + Integer.toString(this.picture.getMedianLowerHalf()));
 		this.lbMode.setText(Messages.getString("MainWindow.lbMode.text") + Integer.toString(this.picture.getMode()));
 		this.lbVariance.setText(Messages.getString("MainWindow.lbVariance.text") + Integer.toString(this.picture.getVariance()));
 	}
-
 }

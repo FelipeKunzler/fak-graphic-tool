@@ -28,6 +28,7 @@ public class Picture {
 	private int mean;
 	private int mode;
 	private int variance;
+	private int histogramValues[];
 	
 	public BufferedImage getBufferedImage() {
 		return bufferedImage;
@@ -55,6 +56,10 @@ public class Picture {
 	
 	public int getVariance() {
 		return this.variance;
+	}
+	
+	public int[] getHistogramValues(){
+		return this.histogramValues;
 	}
 	
 	public ImageIcon getStretchedImage(int viewWidth, int viewHeight){
@@ -127,8 +132,32 @@ public class Picture {
 		}
 		
 		// Update all the contents and statistics.
-		initialize();
+		this.initialize();
+	}
+	
+	/*
+	 * Initializes the contents of the class.
+	 */
+	private void initialize(){
 		
+		this.height = this.bufferedImage.getHeight();
+		this.width = this.bufferedImage.getWidth();
+		
+		this.histogramValues = this.calculateHistogramValues();
+		this.mean = this.calculateMean();
+		this.meanUpperHalf = this.calculateMeanHalfUpper();
+		this.median = this.calculateMedian();
+		this.medianLowerHalf = this.calculateMedianLowerHalf();
+		this.mode = this.calculateMode();
+		this.variance = this.calculateVariance();
+		
+		
+		 
+		System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
+		System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
+		System.out.println(MessageFormat.format("Mode: {0}", this.mode));
+		System.out.println(MessageFormat.format("Mean: {0}", this.mean));
+		System.out.println(MessageFormat.format("Variance: {0}\n", this.variance));
 	}
 	
 	/*
@@ -215,28 +244,6 @@ public class Picture {
 	}
 	
 	/*
-	 * Initializes the contents of the class.
-	 */
-	private void initialize(){
-		
-		this.height = this.bufferedImage.getHeight();
-		this.width = this.bufferedImage.getWidth();
-		
-		this.mean = this.calculateMean();
-		this.meanUpperHalf = this.calculateMeanHalfUpper();
-		this.median = this.calculateMedian();
-		this.medianLowerHalf = this.calculateMedianLowerHalf();
-		this.mode = this.calculateMode();
-		this.variance = this.calculateVariance();
-		 
-		System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
-		System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
-		System.out.println(MessageFormat.format("Mode: {0}", this.mode));
-		System.out.println(MessageFormat.format("Mean: {0}", this.mean));
-		System.out.println(MessageFormat.format("Variance: {0}\n", this.variance));
-	}
-	
-	/*
 	 * Calculates the mean color of the picture.
 	 * @param onlyUpperHalf set true if to calculate the mean of only the upper half of the image.
 	 */
@@ -315,32 +322,7 @@ public class Picture {
 	private int calculateMedianLowerHalf(){
 		return this.calculateMedian(true);
 	}
-	
-	/*
-	 * Calculates the mode of the picture
-	 */
-	private int calculateMode(){
 		
-		int[] counter = new int[256];		
-		int higher = counter.length - 1;
-		
-		for (int y = 0; y < this.height; y++)
-		{
-		    for (int x = 0; x < this.width; x++)
-		    {	
-		        Color c = new Color(this.bufferedImage.getRGB(x, y));
-		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
-		        counter[grayScale]++;
-		        
-		        if (counter[grayScale] > counter[higher]){
-					higher = grayScale;
-				}
-		    }
-		}
-		
-		return higher;
-	}
-	
 	/*
 	 * Calculates the variance of the picture
 	 */
@@ -360,6 +342,40 @@ public class Picture {
 		}
 		
 		return bucketVariance / (this.height * this.width);
+	}
+	
+	/*
+	 * Calculates the histogram values.
+	 */
+	private int[] calculateHistogramValues(){
+		
+		int[] histogramValues = new int[256];		
+		for (int y = 0; y < this.height; y++)
+		{
+		    for (int x = 0; x < this.width; x++)
+		    {	
+		        Color c = new Color(this.bufferedImage.getRGB(x, y));
+		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+		        histogramValues[grayScale]++;
+		    }
+		}
+				
+		return histogramValues;
+	}
+	
+	/*
+	 * Calculates the mode of the picture
+	 */
+	private int calculateMode(){
+		
+		int mode = 0;
+        for (int i = 0; i < this.histogramValues.length; i++) {
+        	if (histogramValues[i] > histogramValues[mode]){
+        		mode = i;
+        	}
+		}
+        
+        return mode;
 	}
 	
 }
