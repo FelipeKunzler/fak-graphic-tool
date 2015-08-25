@@ -163,7 +163,7 @@ public class Picture {
 	/*
 	 * Modify the picture according to the following:
 	 * "a)	Valores maiores ou iguais a média de toda a imagem recebem preto."
-	 * Pixels' value that are greater or equal than the mean of the whole image changes to black.
+	 * Pixels' grayscale that are greater or equal than the mean of the whole image changes to black.
 	 * 
 	 * @param grayScale value of the pixel.
 	 * @return new value of the pixel.
@@ -179,7 +179,7 @@ public class Picture {
 	/*
 	 * Modify the picture according to the following:
 	 * "b)	Valores maiores ou iguais a moda de toda a imagem recebem 150."
-	 * Pixels' value that are greater or equal than the mode of the whole image changes to 150.
+	 * Pixels' grayscale that are greater or equal than the mode of the whole image changes to 150.
 	 * 
 	 * @param grayScale value of the pixel.
 	 * @return new value of the pixel.
@@ -195,7 +195,7 @@ public class Picture {
 	/*
 	 * Modify the picture according to the following:
 	 * "c)	Valores maiores ou iguais a mediana de toda a imagem recebem branco."
-	 * Pixels' value that are greater or equal than the median of the whole image changes to white.
+	 * Pixels' grayscale that are greater or equal than the median of the whole image changes to white.
 	 * 
 	 * @param grayScale value of the pixel.
 	 * @return new value of the pixel.
@@ -211,7 +211,7 @@ public class Picture {
 	/*
 	 * Modify the picture according to the following:
 	 * "d)	Valores menores que a média de toda a imagem recebem 100."
-	 * Pixels' value that are less than the mean of the whole image changes to 100.
+	 * Pixels' grayscale that are less than the mean of the whole image changes to 100.
 	 * 
 	 * @param grayScale value of the pixel.
 	 * @return new value of the pixel.
@@ -227,7 +227,7 @@ public class Picture {
 	/*
 	 * Modify the picture according to the following:
 	 * "e)	Valores maiores que a mediana de toda a imagem recebem 255 e menores que a média recebem 0."
-	 * Pixels' value that are greater than the median of the whole image changes to 100, if less than the mean, changes to 0."
+	 * Pixels' grayscale that are greater than the median of the whole image changes to 100, if less than the mean, changes to 0."
 	 * 
 	 * @param grayScale value of the pixel.
 	 * @return new value of the pixel.

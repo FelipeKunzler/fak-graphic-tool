@@ -31,6 +31,7 @@ import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
+import javax.swing.SwingConstants;
 
 public class MainWindow {
 	
@@ -70,41 +71,78 @@ public class MainWindow {
 
 		this.picture = new Picture("res/lena.png");
 		this.refreshPictureInfo();
-
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.setBounds(0, 0, 664, 21);
-		frame.getContentPane().add(menuBar);
-
-		JMenu mnFile = new JMenu(Messages.getString("MainWindow.mnFile.text"));
-		menuBar.add(mnFile);
-
-		JMenuItem mntmOpen = new JMenuItem(Messages.getString("MainWindow.mntmOpen.text"));
-		mntmOpen.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				openPictureDialog();
+		
+		JPanel panelButtons = new JPanel();
+		panelButtons.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelButtons.setBounds(8, 32, 215, 114);
+		frame.getContentPane().add(panelButtons);
+		panelButtons.setLayout(null);
+		
+		JButton btnA = new JButton(Messages.getString("MainWindow.btnA.text"));
+		btnA.setToolTipText(Messages.getString("MainWindow.btnA.toolTipText"));
+		btnA.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('a');
+				refreshPictureInfo();
 			}
 		});
-
-		mnFile.add(mntmOpen);
-
-		JSeparator separator = new JSeparator();
-		mnFile.add(separator);
-
-		JMenuItem mntmExit = new JMenuItem(Messages.getString("MainWindow.mntmExit.text"));
-		mntmExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+		btnA.setBounds(14, 11, 89, 23);
+		panelButtons.add(btnA);
+		
+		JButton btnB = new JButton(Messages.getString("MainWindow.btnB.text"));
+		btnB.setToolTipText(Messages.getString("MainWindow.btnB.toolTipText"));
+		btnB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('b');
+				refreshPictureInfo();
 			}
 		});
-
-		mnFile.add(mntmExit);
-
-		JMenu mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
-		menuBar.add(mnHelp);
-
-		JMenuItem mntmAbout = new JMenuItem(Messages.getString("MainWindow.mntmAbout.text"));
-		mnHelp.add(mntmAbout);
-
+		btnB.setBounds(113, 11, 89, 23);
+		panelButtons.add(btnB);
+		
+		JButton btnC = new JButton(Messages.getString("MainWindow.btnC.text"));
+		btnC.setToolTipText(Messages.getString("MainWindow.btnC.toolTipText")); 
+		btnC.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('c');
+				refreshPictureInfo();
+			}
+		});
+		btnC.setBounds(14, 45, 89, 23);
+		panelButtons.add(btnC);
+		
+		JButton btnD = new JButton(Messages.getString("MainWindow.btnD.text"));
+		btnD.setToolTipText(Messages.getString("MainWindow.btnD.toolTipText"));
+		btnD.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('d');
+				refreshPictureInfo();
+			}
+		});
+		btnD.setBounds(113, 45, 89, 23);
+		panelButtons.add(btnD);
+		
+		JButton btnE = new JButton(Messages.getString("MainWindow.btnE.text"));
+		btnE.setToolTipText(Messages.getString("MainWindow.btnE.toolTipText"));
+		btnE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.modifyImage('e');
+				refreshPictureInfo();
+			}
+		});
+		btnE.setBounds(14, 79, 89, 23);
+		panelButtons.add(btnE);
+		
+		JButton btnOriginal = new JButton(Messages.getString("MainWindow.btnOriginal.text"));
+		btnOriginal.setToolTipText(Messages.getString("MainWindow.btnOriginal.toolTipText"));
+		btnOriginal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.restoreOriginalImage();
+				refreshPictureInfo();
+			}
+		});
+		btnOriginal.setBounds(113, 79, 89, 23);
+		panelButtons.add(btnOriginal);
 	}
 
 	/**
@@ -114,79 +152,53 @@ public class MainWindow {
 		frame = new JFrame();
 		frame.setTitle(Messages.getString("MainWindow.frame.title"));
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 648, 473);
+		frame.setBounds(100, 100, 644, 466);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-
-		JPanel panelButtons = new JPanel();
-		panelButtons.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelButtons.setBounds(10, 35, 215, 121);
-		frame.getContentPane().add(panelButtons);
-		panelButtons.setLayout(null);
-
-		JButton btnA = new JButton(Messages.getString("MainWindow.btnA.text"));
-		btnA.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.modifyImage('a');
-				refreshPictureInfo();
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 664, 21);
+		frame.getContentPane().add(menuBar);
+		
+		JMenu mnFile = new JMenu(Messages.getString("MainWindow.mnFile.text"));
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmOpen = new JMenuItem(Messages.getString("MainWindow.mntmOpen.text"));
+		mntmOpen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				openPictureDialog();
 			}
 		});
-		btnA.setBounds(10, 11, 89, 23);
-		panelButtons.add(btnA);
-
-		JButton btnB = new JButton(Messages.getString("MainWindow.btnB.text"));
-		btnB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.modifyImage('b');
-				refreshPictureInfo();
+		
+		mnFile.add(mntmOpen);
+		
+		JSeparator separator = new JSeparator();
+		mnFile.add(separator);
+		
+		JMenuItem mntmExit = new JMenuItem(Messages.getString("MainWindow.mntmExit.text"));
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
 			}
 		});
-		btnB.setBounds(113, 11, 89, 23);
-		panelButtons.add(btnB);
-
-		JButton btnC = new JButton(Messages.getString("MainWindow.btnC.text"));
-		btnC.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.modifyImage('c');
-				refreshPictureInfo();
-			}
-		});
-		btnC.setBounds(10, 44, 89, 23);
-		panelButtons.add(btnC);
-
-		JButton btnD = new JButton(Messages.getString("MainWindow.btnD.text"));
-		btnD.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.modifyImage('d');
-				refreshPictureInfo();
-			}
-		});
-		btnD.setBounds(113, 44, 89, 23);
-		panelButtons.add(btnD);
-
-		JButton btnE = new JButton(Messages.getString("MainWindow.btnE.text"));
-		btnE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.modifyImage('e');
-				refreshPictureInfo();
-			}
-		});
-		btnE.setBounds(10, 78, 89, 23);
-		panelButtons.add(btnE);
-
-		JButton btnOriginal = new JButton(Messages.getString("MainWindow.btnOriginal.text"));
-		btnOriginal.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				picture.restoreOriginalImage();
-				refreshPictureInfo();
-			}
-		});
-		btnOriginal.setBounds(113, 78, 89, 23);
-		panelButtons.add(btnOriginal);
+		
+		mnFile.add(mntmExit);
+		
+		JMenu mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
+		menuBar.add(mnHelp);
+		
+		JMenuItem mntmAbout = new JMenuItem(Messages.getString("MainWindow.mntmAbout.text"));
+		mnHelp.add(mntmAbout);
+		
+		JLabel lblApplyEffects = new JLabel(Messages.getString("MainWindow.lblApplyEffects.text"));
+		lblApplyEffects.setOpaque(true);
+		lblApplyEffects.setBackground(this.frame.getBackground());
+		lblApplyEffects.setBounds(24, 25, 75, 14);
+		frame.getContentPane().add(lblApplyEffects);
 
 		JPanel panelInformation = new JPanel();
 		panelInformation.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panelInformation.setBounds(10, 159, 215, 114);
+		panelInformation.setBounds(8, 151, 215, 108);
 		frame.getContentPane().add(panelInformation);
 		panelInformation.setLayout(null);
 
@@ -207,11 +219,11 @@ public class MainWindow {
 		panelInformation.add(this.lbMode);
 
 		this.lbImageViewer = new JLabel("");
-		this.lbImageViewer.setBounds(235, 35, 398, 398);
+		this.lbImageViewer.setBounds(233, 32, 398, 398);
 		frame.getContentPane().add(this.lbImageViewer);
 		
 		this.lbHistogramViewer = new JLabel("");
-		this.lbHistogramViewer.setBounds(3, 271, 229, 165);
+		this.lbHistogramViewer.setBounds(0, 259, 230, 174);
 		frame.getContentPane().add(this.lbHistogramViewer);
 	}
 	
