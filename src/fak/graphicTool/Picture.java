@@ -150,14 +150,6 @@ public class Picture {
 		this.medianLowerHalf = this.calculateMedianLowerHalf();
 		this.mode = this.calculateMode();
 		this.variance = this.calculateVariance();
-		
-		
-		 
-		System.out.println(MessageFormat.format("Mean upper half: {0}", this.meanUpperHalf));
-		System.out.println(MessageFormat.format("Median lower half: {0}", this.medianLowerHalf));
-		System.out.println(MessageFormat.format("Mode: {0}", this.mode));
-		System.out.println(MessageFormat.format("Mean: {0}", this.mean));
-		System.out.println(MessageFormat.format("Variance: {0}\n", this.variance));
 	}
 	
 	/*

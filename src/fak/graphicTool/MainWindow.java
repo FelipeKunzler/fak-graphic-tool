@@ -203,19 +203,19 @@ public class MainWindow {
 		panelInformation.setLayout(null);
 
 		this.lbMeanUpperHalf = new JLabel(Messages.getString("MainWindow.lbMeanUpperHalf.text"));
-		this.lbMeanUpperHalf.setBounds(13, 11, 179, 14);
+		this.lbMeanUpperHalf.setBounds(13, 11, 192, 14);
 		panelInformation.add(this.lbMeanUpperHalf);
 
 		this.lbMedianLowerHalf = new JLabel(Messages.getString("MainWindow.lbMedianLowerHalf.text"));
-		this.lbMedianLowerHalf.setBounds(13, 36, 168, 14);
+		this.lbMedianLowerHalf.setBounds(13, 36, 192, 14);
 		panelInformation.add(this.lbMedianLowerHalf);
 
 		this.lbVariance = new JLabel(Messages.getString("MainWindow.lbVariance.text"));
-		this.lbVariance.setBounds(13, 86, 85, 14);
+		this.lbVariance.setBounds(13, 86, 192, 14);
 		panelInformation.add(this.lbVariance);
 
 		this.lbMode = new JLabel(Messages.getString("MainWindow.lbMode.text"));
-		this.lbMode.setBounds(13, 61, 83, 14);
+		this.lbMode.setBounds(13, 61, 192, 14);
 		panelInformation.add(this.lbMode);
 
 		this.lbImageViewer = new JLabel("");
