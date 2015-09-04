@@ -6,7 +6,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +76,13 @@ public class Picture {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Picture (BufferedImage bufferedImage){
+		this.originalBufferedImage = bufferedImage;
+		
+		this.bufferedImage = Picture.copyImage(this.originalBufferedImage);
+		initialize();
 	}
 	
 	public static BufferedImage copyImage(BufferedImage source){
