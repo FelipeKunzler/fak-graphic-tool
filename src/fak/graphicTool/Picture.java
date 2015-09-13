@@ -376,4 +376,42 @@ public class Picture {
         return mode;
 	}
 	
+	public void rotate() {
+		rotate(false);
+	}
+		
+	public void rotate(boolean counterclockwise) {
+	    
+		BufferedImage image = this.bufferedImage;
+		BufferedImage rotatedImg = new BufferedImage(image.getHeight(), image.getWidth(), BufferedImage.TYPE_INT_RGB);
+	    
+	    for(int x = 0; x < image.getWidth(); x++){
+	        for(int y = 0; y < image.getHeight(); y++){
+	        	int newX = counterclockwise ? image.getHeight() - x - 1 : x;
+	        	int newY = counterclockwise ? y : image.getHeight() - y - 1;
+	        	
+	            rotatedImg.setRGB(newY, newX, image.getRGB(x, y));
+	        }
+	    }
+	    
+	    this.bufferedImage = rotatedImg;
+	}
+	
+	public void resize(double scale) {
+	    
+		BufferedImage image = this.bufferedImage;
+		BufferedImage resizedImg = new BufferedImage((int) (image.getWidth()*scale), (int) (image.getHeight()*scale), BufferedImage.TYPE_INT_RGB);
+	    
+	    for(int x = 0; x < resizedImg.getWidth(); x++){
+	        for(int y = 0; y < resizedImg.getHeight(); y++){
+	        	
+	        	int newXcolor = (int) (x / scale);
+	        	int newYcolor = (int) (y / scale);
+	        		        	
+	        	resizedImg.setRGB(x, y, image.getRGB(newXcolor, newYcolor));
+	        }
+	    }
+	    
+	    this.bufferedImage = resizedImg;
+	}	
 }

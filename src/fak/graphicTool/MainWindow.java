@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.LineBorder;
@@ -34,6 +35,12 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.SwingConstants;
 
 public class MainWindow {
 	
@@ -52,9 +59,7 @@ public class MainWindow {
 	@UsesMessagesText(hasToolTip = true)
 	private JButton btnE;	
 	@UsesMessagesText(hasToolTip = true)
-	private JButton btnOriginal;	
-	@UsesMessagesText
-	private JLabel lbImageViewer;	
+	private JButton btnOriginal;		
 	@UsesMessagesText
 	private JLabel lbHistogramViewer;
 	@UsesMessagesText
@@ -83,7 +88,23 @@ public class MainWindow {
 	private JRadioButtonMenuItem rdbMenuEn;
 	@UsesMessagesText
 	private JRadioButtonMenuItem rdbMenuPt;
-
+	@UsesMessagesText
+	private JMenu mnTools;
+	@UsesMessagesText
+	private JMenu mnRotate;
+	@UsesMessagesText
+	private JMenuItem mntmClockwise;
+	@UsesMessagesText
+	private JMenuItem mntmCounterclockwise;
+	@UsesMessagesText
+	private JMenuItem mntmMirror;
+	@UsesMessagesText
+	private JMenuItem mntmResize;
+	@UsesMessagesText
+	private JMenuItem mntmMove;
+	
+	private JLabel lbImageViewer;
+	
 	private Picture picture;
 
 	/**
@@ -141,9 +162,11 @@ public class MainWindow {
 		}
 		
 		this.lbApplyEffects = new JLabel(Messages.getString("MainWindow.lbApplyEffects.text"));
+		lbApplyEffects.setHorizontalAlignment(SwingConstants.CENTER);
+		lbApplyEffects.setHorizontalTextPosition(SwingConstants.CENTER);
 		this.lbApplyEffects.setOpaque(true);
 		this.lbApplyEffects.setBackground(this.frame.getBackground());
-		this.lbApplyEffects.setBounds(30, 25, 75, 14);
+		this.lbApplyEffects.setBounds(30, 25, 82, 14);
 		frame.getContentPane().add(this.lbApplyEffects);
 		
 		JPanel panelButtons = new JPanel();
@@ -244,7 +267,47 @@ public class MainWindow {
 			}
 		});
 		
-		this.mnFile.add(mntmExit);
+		this.mnFile.add(this.mntmExit);
+		
+		this.mnTools = new JMenu(Messages.getString("MainWindow.mnTools.text"));
+		menuBar.add(this.mnTools);
+		
+		this.mnRotate = new JMenu(Messages.getString("MainWindow.mnRotate.text"));
+		mnTools.add(this.mnRotate);
+		
+		this.mntmClockwise = new JMenuItem(Messages.getString("MainWindow.mntmClockwise.text"));
+		this.mntmClockwise.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.rotate();
+				refreshPictureInfo();
+			}
+		});
+		mnRotate.add(mntmClockwise);
+		
+		this.mntmCounterclockwise = new JMenuItem(Messages.getString("MainWindow.mntmCounterclockwise.text"));
+		this.mntmCounterclockwise.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.rotate(true);
+				refreshPictureInfo();
+				
+			}
+		});
+		mnRotate.add(this.mntmCounterclockwise);
+		
+		this.mntmMirror = new JMenuItem(Messages.getString("MainWindow.mntmMirror.text"));
+		mnTools.add(this.mntmMirror);
+		
+		this.mntmResize = new JMenuItem(Messages.getString("MainWindow.mntmResize.text"));
+		this.mntmResize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				onResizeClick();
+			}
+		});
+		mnTools.add(this.mntmResize);
+		
+		this.mntmMove = new JMenuItem(Messages.getString("MainWindow.mntmMove.text"));
+		mnTools.add(this.mntmMove);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
@@ -297,14 +360,19 @@ public class MainWindow {
 		this.lbMode = new JLabel(Messages.getString("MainWindow.lbMode.text"));
 		this.lbMode.setBounds(13, 61, 192, 14);
 		panelInformation.add(this.lbMode);
-
-		this.lbImageViewer = new JLabel("");
-		this.lbImageViewer.setBounds(233, 32, 398, 398);
-		frame.getContentPane().add(this.lbImageViewer);
 		
 		this.lbHistogramViewer = new JLabel("");
 		this.lbHistogramViewer.setBounds(0, 259, 230, 174);
 		frame.getContentPane().add(this.lbHistogramViewer);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(233, 32, 398, 398);
+		frame.getContentPane().add(scrollPane);
+		
+				this.lbImageViewer = new JLabel("");
+				lbImageViewer.setHorizontalTextPosition(SwingConstants.CENTER);
+				lbImageViewer.setHorizontalAlignment(SwingConstants.CENTER);
+				scrollPane.setViewportView(lbImageViewer);
 	}
 	
 	private void refreshTexts(){
@@ -391,14 +459,41 @@ public class MainWindow {
 	}
 
 	private void refreshPictureInfo() {
-		ImageIcon stretchedImage = this.picture.getStretchedImage(this.lbImageViewer.getWidth(),
-				this.lbImageViewer.getHeight());
-		this.lbImageViewer.setIcon(stretchedImage);
+
+		this.lbImageViewer.setIcon(new ImageIcon(this.picture.getBufferedImage()));
 		this.refreshHistogram();
 		
 		this.lbMeanUpperHalf.setText(Messages.getString("MainWindow.lbMeanUpperHalf.text") + Integer.toString(this.picture.getMeanUpperHalf()));
 		this.lbMedianLowerHalf.setText(Messages.getString("MainWindow.lbMedianLowerHalf.text") + Integer.toString(this.picture.getMedianLowerHalf()));
 		this.lbMode.setText(Messages.getString("MainWindow.lbMode.text") + Integer.toString(this.picture.getMode()));
 		this.lbVariance.setText(Messages.getString("MainWindow.lbVariance.text") + Integer.toString(this.picture.getVariance()));
+	}
+	
+	private void onResizeClick(){
+		String strScale = (String) JOptionPane.showInputDialog(
+                frame, Messages.getString("MainWindow.dialogScale.text"), Messages.getString("MainWindow.mntmResize.text"), JOptionPane.PLAIN_MESSAGE,
+                null, null, "1.0");
+		
+		if (strScale != null){
+			
+			double scale;
+			try {
+				scale = Double.parseDouble(strScale);
+			}
+			catch(Exception e) {
+				scale = -1;
+			}
+			
+			if (scale > 0){
+				picture.resize(scale);
+				refreshPictureInfo();
+			}
+			else {
+				JOptionPane.showMessageDialog(frame,
+						Messages.getString("MainWindow.dialogErrorScale.text"),
+						Messages.getString("MainWindow.dialogErrorScale.title"),
+					    JOptionPane.ERROR_MESSAGE);									
+			}
+		}
 	}
 }
