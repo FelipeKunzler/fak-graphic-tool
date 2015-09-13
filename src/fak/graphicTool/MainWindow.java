@@ -41,13 +41,12 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
+import javax.swing.JCheckBox;
 
 public class MainWindow {
 	
 	private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "gif"};
 
-	private JFrame frame;
-	
 	@UsesMessagesText(hasToolTip = true)
 	private JButton btnA;
 	@UsesMessagesText(hasToolTip = true)
@@ -97,13 +96,22 @@ public class MainWindow {
 	@UsesMessagesText
 	private JMenuItem mntmCounterclockwise;
 	@UsesMessagesText
-	private JMenuItem mntmMirror;
+	private JMenuItem mnMirror;
 	@UsesMessagesText
 	private JMenuItem mntmResize;
 	@UsesMessagesText
 	private JMenuItem mntmMove;
+	@UsesMessagesText
+	private JMenuItem mntmHorizontally;
+	@UsesMessagesText
+	private JMenuItem mntmVertically;
+	@UsesMessagesText
+	private JCheckBox chckbxStretchImage;
 	
 	private JLabel lbImageViewer;
+	private JLabel lbDimension;
+	private JScrollPane scrollPanel;
+	private JFrame frame;
 	
 	private Picture picture;
 
@@ -150,7 +158,7 @@ public class MainWindow {
 		frame = new JFrame();
 		frame.setTitle(Messages.getString("MainWindow.frame.title"));
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 644, 466);
+		frame.setBounds(100, 100, 644, 483);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -282,7 +290,7 @@ public class MainWindow {
 				refreshPictureInfo();
 			}
 		});
-		mnRotate.add(mntmClockwise);
+		this.mnRotate.add(mntmClockwise);
 		
 		this.mntmCounterclockwise = new JMenuItem(Messages.getString("MainWindow.mntmCounterclockwise.text"));
 		this.mntmCounterclockwise.addActionListener(new ActionListener() {
@@ -294,8 +302,26 @@ public class MainWindow {
 		});
 		mnRotate.add(this.mntmCounterclockwise);
 		
-		this.mntmMirror = new JMenuItem(Messages.getString("MainWindow.mntmMirror.text"));
-		mnTools.add(this.mntmMirror);
+		this.mnMirror = new JMenu(Messages.getString("MainWindow.mnMirror.text"));
+		mnTools.add(this.mnMirror);
+		
+		this.mntmHorizontally = new JMenuItem(Messages.getString("MainWindow.mntmHorizontally.text"));
+		this.mntmHorizontally.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.mirror();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMirror.add(mntmHorizontally);
+		
+		this.mntmVertically = new JMenuItem(Messages.getString("MainWindow.mntmVertically.text"));
+		this.mntmVertically.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.mirror(true);
+				refreshPictureInfo();
+			}
+		});
+		this.mnMirror.add(mntmVertically);
 		
 		this.mntmResize = new JMenuItem(Messages.getString("MainWindow.mntmResize.text"));
 		this.mntmResize.addActionListener(new ActionListener() {
@@ -365,14 +391,28 @@ public class MainWindow {
 		this.lbHistogramViewer.setBounds(0, 259, 230, 174);
 		frame.getContentPane().add(this.lbHistogramViewer);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(233, 32, 398, 398);
-		frame.getContentPane().add(scrollPane);
+		this.scrollPanel = new JScrollPane();
+		this.scrollPanel.setBounds(233, 32, 398, 398);
+		frame.getContentPane().add(this.scrollPanel);
 		
-				this.lbImageViewer = new JLabel("");
-				lbImageViewer.setHorizontalTextPosition(SwingConstants.CENTER);
-				lbImageViewer.setHorizontalAlignment(SwingConstants.CENTER);
-				scrollPane.setViewportView(lbImageViewer);
+		this.lbImageViewer = new JLabel("");
+		lbImageViewer.setHorizontalTextPosition(SwingConstants.CENTER);
+		this.lbImageViewer.setHorizontalAlignment(SwingConstants.CENTER);
+		scrollPanel.setViewportView(this.lbImageViewer);
+		
+		this.chckbxStretchImage = new JCheckBox(Messages.getString("MainWindow.chckbxStretchImage.text"));
+		this.chckbxStretchImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				refreshPictureInfo();
+			}
+		});
+		this.chckbxStretchImage.setBounds(233, 429, 174, 23);
+		frame.getContentPane().add(this.chckbxStretchImage);
+		
+		this.lbDimension = new JLabel("");
+		this.lbDimension.setHorizontalAlignment(SwingConstants.RIGHT);
+		this.lbDimension.setBounds(463, 433, 165, 14);
+		frame.getContentPane().add(this.lbDimension);
 	}
 	
 	private void refreshTexts(){
@@ -459,10 +499,19 @@ public class MainWindow {
 	}
 
 	private void refreshPictureInfo() {
-
-		this.lbImageViewer.setIcon(new ImageIcon(this.picture.getBufferedImage()));
+		
+		if (this.chckbxStretchImage.isSelected()){
+			this.lbImageViewer.setIcon(
+					this.picture.getStretchedImage(this.scrollPanel.getWidth() - 3, this.scrollPanel.getHeight() - 3));
+		}
+		else{
+			this.lbImageViewer.setIcon(new ImageIcon(this.picture.getBufferedImage()));
+		}
+		
 		this.refreshHistogram();
 		
+		BufferedImage bi = this.picture.getBufferedImage();
+		this.lbDimension.setText(bi.getWidth() + " x " + bi.getHeight() + "px");
 		this.lbMeanUpperHalf.setText(Messages.getString("MainWindow.lbMeanUpperHalf.text") + Integer.toString(this.picture.getMeanUpperHalf()));
 		this.lbMedianLowerHalf.setText(Messages.getString("MainWindow.lbMedianLowerHalf.text") + Integer.toString(this.picture.getMedianLowerHalf()));
 		this.lbMode.setText(Messages.getString("MainWindow.lbMode.text") + Integer.toString(this.picture.getMode()));

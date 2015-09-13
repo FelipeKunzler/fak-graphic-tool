@@ -376,10 +376,17 @@ public class Picture {
         return mode;
 	}
 	
+	/*
+	 * Rotates the picture clockwise.
+	 */
 	public void rotate() {
 		rotate(false);
 	}
-		
+	
+	/*
+	 * Rotates the picture.
+	 * @param counterclockwise True: rotates counterclockwise; False: rotates clockwise.
+	 */
 	public void rotate(boolean counterclockwise) {
 	    
 		BufferedImage image = this.bufferedImage;
@@ -387,7 +394,7 @@ public class Picture {
 	    
 	    for(int x = 0; x < image.getWidth(); x++){
 	        for(int y = 0; y < image.getHeight(); y++){
-	        	int newX = counterclockwise ? image.getHeight() - x - 1 : x;
+	        	int newX = counterclockwise ? image.getWidth() - x - 1 : x;
 	        	int newY = counterclockwise ? y : image.getHeight() - y - 1;
 	        	
 	            rotatedImg.setRGB(newY, newX, image.getRGB(x, y));
@@ -397,6 +404,10 @@ public class Picture {
 	    this.bufferedImage = rotatedImg;
 	}
 	
+	/*
+	 * Resize the picture.
+	 * @param scale Has to be greater than zero.
+	 */
 	public void resize(double scale) {
 	    
 		BufferedImage image = this.bufferedImage;
@@ -413,5 +424,34 @@ public class Picture {
 	    }
 	    
 	    this.bufferedImage = resizedImg;
-	}	
+	}
+	
+	/*
+	 * Mirror the picture horizontally.
+	 */
+	public void mirror() {
+		mirror(false);
+	}
+	
+	/*
+	 * Rotates the picture.
+	 * @param vertically True: mirror vertically; False: mirror horizontally.
+	 */
+	public void mirror(boolean vertically) {
+	    
+		BufferedImage image = this.bufferedImage;
+		BufferedImage mirrorImg = new BufferedImage(this.bufferedImage.getWidth(), this.bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+	    
+	    for(int x = 0; x < mirrorImg.getWidth(); x++){
+	        for(int y = 0; y < mirrorImg.getHeight(); y++){
+	        	
+	        	int newX = vertically ? x : image.getWidth() - x - 1;
+	        	int newY = vertically ? image.getHeight() - y - 1 : y;
+	        		        	
+	        	mirrorImg.setRGB(x, y, image.getRGB(newX, newY));
+	        }
+	    }
+	    
+	    this.bufferedImage = mirrorImg;
+	}
 }
