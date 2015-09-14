@@ -23,6 +23,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jfree.chart.ChartFactory;
@@ -36,10 +37,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JPopupMenu;
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
 
@@ -333,7 +330,12 @@ public class MainWindow {
 		mnTools.add(this.mntmResize);
 		
 		this.mntmMove = new JMenuItem(Messages.getString("MainWindow.mntmMove.text"));
-		mnTools.add(this.mntmMove);
+		this.mntmMove.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				onMoveClick();
+			}
+		});
+		this.mnTools.add(this.mntmMove);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
@@ -363,6 +365,12 @@ public class MainWindow {
 		mnLanguage.add(this.rdbMenuPt);
 		
 		this.mntmAbout = new JMenuItem(Messages.getString("MainWindow.mntmAbout.text"));
+		this.mntmAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane.showMessageDialog(frame, Messages.getString("MainWindow.dialogAbout.text"), 
+						Messages.getString("MainWindow.mntmAbout.text"), JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
 		this.mnHelp.add(this.mntmAbout);
 
 		JPanel panelInformation = new JPanel();
@@ -520,7 +528,7 @@ public class MainWindow {
 	
 	private void onResizeClick(){
 		String strScale = (String) JOptionPane.showInputDialog(
-                frame, Messages.getString("MainWindow.dialogScale.text"), Messages.getString("MainWindow.mntmResize.text"), JOptionPane.PLAIN_MESSAGE,
+                frame, Messages.getString("MainWindow.dialogScale.text"), Messages.getString("MainWindow.mntmResize.text"), JOptionPane.QUESTION_MESSAGE,
                 null, null, "1.0");
 		
 		if (strScale != null){
@@ -544,5 +552,46 @@ public class MainWindow {
 					    JOptionPane.ERROR_MESSAGE);									
 			}
 		}
+	}
+	
+	private void onMoveClick(){		
+		
+		JTextField tfX = new JTextField();
+		tfX.setText("0");
+		JTextField tfY = new JTextField();
+		tfY.setText("0");
+		
+		Object[] options = {
+			Messages.getString("MainWindow.dialogMoveX.text"), tfX,
+			Messages.getString("MainWindow.dialogMoveY.text"), tfY
+		};
+		
+		int option = JOptionPane.showOptionDialog(frame, options, Messages.getString("MainWindow.mntmMove.text"), 
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, 
+				null, new Object[]{"OK", "Cancel"}, options[1]);
+		if (option == JOptionPane.OK_OPTION) {
+		
+			int x;
+			int y;
+			try {
+				x = Integer.parseInt(tfX.getText());
+				y = Integer.parseInt(tfY.getText());
+			}
+			catch(Exception e) {
+				x = -1;
+				y = -1;
+			}
+			
+			if (x >= 0 && y >= 0){
+				picture.move(x, y);
+				refreshPictureInfo();
+			}
+			else {
+				JOptionPane.showMessageDialog(frame,
+						Messages.getString("MainWindow.dialogMoveError.text"),
+						Messages.getString("MainWindow.mntmMove.text"),
+					    JOptionPane.ERROR_MESSAGE);									
+			}
+	    }
 	}
 }

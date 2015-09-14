@@ -17,10 +17,7 @@ public class Picture {
 	
 	private BufferedImage bufferedImage;
 	private BufferedImage originalBufferedImage;
-	
-	private int height;
-	private int width;
-	
+		
 	private int meanUpperHalf;
 	private int median;
 	private int medianLowerHalf;
@@ -55,6 +52,14 @@ public class Picture {
 	
 	public int getVariance() {
 		return this.variance;
+	}
+	
+	public int getHeight() {
+		return this.bufferedImage.getHeight();
+	}
+	
+	public int getWidth() {
+		return this.bufferedImage.getWidth();
 	}
 	
 	public int[] getHistogramValues(){
@@ -104,9 +109,9 @@ public class Picture {
 	 * @param exercise char corresponding to a specific exercise; 'a', 'b', 'c', 'd' or 'e' only.
 	 */
 	public void modifyImage(char exercise){
-		for (int y = 0; y < this.height; y++)
+		for (int y = 0; y < this.getHeight(); y++)
 		{
-		    for (int x = 0; x < this.width; x++)
+		    for (int x = 0; x < this.getWidth(); x++)
 		    {		    	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
 		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
@@ -145,10 +150,7 @@ public class Picture {
 	 * Initializes the contents of the class.
 	 */
 	private void initialize(){
-		
-		this.height = this.bufferedImage.getHeight();
-		this.width = this.bufferedImage.getWidth();
-		
+				
 		this.histogramValues = this.calculateHistogramValues();
 		this.mean = this.calculateMean();
 		this.meanUpperHalf = this.calculateMeanHalfUpper();
@@ -250,11 +252,11 @@ public class Picture {
 		long pixelCount = 0;
 		float bucket = 0;
 		
-		int consideredHeight = onlyUpperHalf ? this.height/2 : this.height;
+		int consideredHeight = onlyUpperHalf ? this.getHeight()/2 : this.getHeight();
 		
 		for (int y = 0; y < consideredHeight; y++)
 		{
-		    for (int x = 0; x < this.width; x++)
+		    for (int x = 0; x < this.getWidth(); x++)
 		    {		    	
 		    	pixelCount++;
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
@@ -284,12 +286,12 @@ public class Picture {
 	 */
 	private int calculateMedian(boolean onlyLowerHalf){
 		
-		int consideredY = onlyLowerHalf ? this.height/2 : 0;
+		int consideredY = onlyLowerHalf ? this.getHeight()/2 : 0;
 		
 		List<Float> grayScaleVector = new ArrayList<Float>();	
-		for (int y = consideredY; y < this.height; y++)
+		for (int y = consideredY; y < this.getHeight(); y++)
 		{
-		    for (int x = 0; x < this.width; x++)
+		    for (int x = 0; x < this.getWidth(); x++)
 		    {		    	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
 		        grayScaleVector.add((float) ((c.getRed() + c.getGreen() + c.getBlue()) / 3));
@@ -328,9 +330,9 @@ public class Picture {
 		
 		int bucketVariance = 0;
 		
-		for (int y = 0; y < this.height; y++)
+		for (int y = 0; y < this.getHeight(); y++)
 		{
-		    for (int x = 0; x < this.width; x++)
+		    for (int x = 0; x < this.getWidth(); x++)
 		    {	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
 		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
@@ -339,7 +341,7 @@ public class Picture {
 		    }
 		}
 		
-		return bucketVariance / (this.height * this.width);
+		return bucketVariance / (this.getHeight() * this.getWidth());
 	}
 	
 	/*
@@ -348,9 +350,9 @@ public class Picture {
 	private int[] calculateHistogramValues(){
 		
 		int[] histogramValues = new int[256];		
-		for (int y = 0; y < this.height; y++)
+		for (int y = 0; y < this.getHeight(); y++)
 		{
-		    for (int x = 0; x < this.width; x++)
+		    for (int x = 0; x < this.getWidth(); x++)
 		    {	
 		        Color c = new Color(this.bufferedImage.getRGB(x, y));
 		        int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
@@ -389,15 +391,14 @@ public class Picture {
 	 */
 	public void rotate(boolean counterclockwise) {
 	    
-		BufferedImage image = this.bufferedImage;
-		BufferedImage rotatedImg = new BufferedImage(image.getHeight(), image.getWidth(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage rotatedImg = new BufferedImage(this.getHeight(), this.getWidth(), BufferedImage.TYPE_INT_ARGB);
 	    
-	    for(int x = 0; x < image.getWidth(); x++){
-	        for(int y = 0; y < image.getHeight(); y++){
-	        	int newX = counterclockwise ? image.getWidth() - x - 1 : x;
-	        	int newY = counterclockwise ? y : image.getHeight() - y - 1;
+	    for(int x = 0; x < rotatedImg.getWidth(); x++){
+	        for(int y = 0; y < rotatedImg.getHeight(); y++){
+	        	int newY = counterclockwise ? x : rotatedImg.getWidth() - x - 1 ;
+	        	int newX = counterclockwise ? rotatedImg.getHeight() - y - 1 : y;
 	        	
-	            rotatedImg.setRGB(newY, newX, image.getRGB(x, y));
+	            rotatedImg.setRGB(x, y, this.bufferedImage.getRGB(newX, newY));
 	        }
 	    }
 	    
@@ -410,8 +411,7 @@ public class Picture {
 	 */
 	public void resize(double scale) {
 	    
-		BufferedImage image = this.bufferedImage;
-		BufferedImage resizedImg = new BufferedImage((int) (image.getWidth()*scale), (int) (image.getHeight()*scale), BufferedImage.TYPE_INT_RGB);
+		BufferedImage resizedImg = new BufferedImage((int) (this.getWidth()*scale), (int) (this.getHeight()*scale), BufferedImage.TYPE_INT_ARGB);
 	    
 	    for(int x = 0; x < resizedImg.getWidth(); x++){
 	        for(int y = 0; y < resizedImg.getHeight(); y++){
@@ -419,7 +419,7 @@ public class Picture {
 	        	int newXcolor = (int) (x / scale);
 	        	int newYcolor = (int) (y / scale);
 	        		        	
-	        	resizedImg.setRGB(x, y, image.getRGB(newXcolor, newYcolor));
+	        	resizedImg.setRGB(x, y, this.bufferedImage.getRGB(newXcolor, newYcolor));
 	        }
 	    }
 	    
@@ -438,17 +438,36 @@ public class Picture {
 	 * @param vertically True: mirror vertically; False: mirror horizontally.
 	 */
 	public void mirror(boolean vertically) {
-	    
-		BufferedImage image = this.bufferedImage;
-		BufferedImage mirrorImg = new BufferedImage(this.bufferedImage.getWidth(), this.bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+		BufferedImage mirrorImg = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	    
 	    for(int x = 0; x < mirrorImg.getWidth(); x++){
 	        for(int y = 0; y < mirrorImg.getHeight(); y++){
 	        	
-	        	int newX = vertically ? x : image.getWidth() - x - 1;
-	        	int newY = vertically ? image.getHeight() - y - 1 : y;
+	        	int newX = vertically ? x : mirrorImg.getWidth() - x - 1;
+	        	int newY = vertically ? mirrorImg.getHeight() - y - 1 : y;
 	        		        	
-	        	mirrorImg.setRGB(x, y, image.getRGB(newX, newY));
+	        	mirrorImg.setRGB(x, y, this.bufferedImage.getRGB(newX, newY));
+	        }
+	    }
+	    
+	    this.bufferedImage = mirrorImg;
+	}
+	
+	/*
+	 * Moves the picture.
+	 * @param x Number of pixels to move on the axis X.
+	 * @param y Number of pixels to move on the axis Y.
+	 */
+	public void move(int moveX, int moveY){
+		
+		BufferedImage mirrorImg = new BufferedImage(this.getWidth() + moveX, 
+				this.getHeight() + moveY, BufferedImage.TYPE_INT_ARGB);
+	    
+	    for(int x = moveX; x < mirrorImg.getWidth(); x++){
+	        for(int y = moveY; y < mirrorImg.getHeight(); y++){
+	        		        		        	
+	        	mirrorImg.setRGB(x, y, this.bufferedImage.getRGB(x - moveX, y - moveY));
 	        }
 	    }
 	    
