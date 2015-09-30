@@ -99,6 +99,8 @@ public class MainWindow {
 	@UsesMessagesText
 	private JMenuItem mntmMove;
 	@UsesMessagesText
+	private JMenuItem mntmThresholding;
+	@UsesMessagesText
 	private JMenuItem mntmHorizontally;
 	@UsesMessagesText
 	private JMenuItem mntmVertically;
@@ -336,6 +338,14 @@ public class MainWindow {
 			}
 		});
 		this.mnTools.add(this.mntmMove);
+		
+		this.mntmThresholding = new JMenuItem(Messages.getString("MainWindow.mntmThresholding.text"));
+		this.mntmThresholding.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				onThresholdingClick();
+			}
+		});
+		this.mnTools.add(this.mntmThresholding);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
@@ -593,5 +603,33 @@ public class MainWindow {
 					    JOptionPane.ERROR_MESSAGE);									
 			}
 	    }
+	}
+	
+	private void onThresholdingClick(){
+		String strThreshold = (String) JOptionPane.showInputDialog(
+                frame, Messages.getString("MainWindow.dialogThreshold.text"), Messages.getString("MainWindow.mntmThresholding.text"), JOptionPane.QUESTION_MESSAGE,
+                null, null, "125");
+		
+		if (strThreshold != null){
+			
+			int threshold;
+			try {
+				threshold = Integer.parseInt(strThreshold);
+			}
+			catch(Exception e) {
+				threshold = -1;
+			}
+			
+			if (threshold >= 0 && threshold <= 255){
+				picture.thresholding(threshold);
+				refreshPictureInfo();
+			}
+			else {
+				JOptionPane.showMessageDialog(frame,
+						Messages.getString("MainWindow.dialogErrorThreshold.text"),
+						Messages.getString("MainWindow.dialogErrorThreshold.title"),
+					    JOptionPane.ERROR_MESSAGE);									
+			}
+		}
 	}
 }

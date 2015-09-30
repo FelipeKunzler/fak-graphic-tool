@@ -403,6 +403,8 @@ public class Picture {
 	    }
 	    
 	    this.bufferedImage = rotatedImg;
+	    
+		this.initialize();
 	}
 	
 	/*
@@ -424,6 +426,8 @@ public class Picture {
 	    }
 	    
 	    this.bufferedImage = resizedImg;
+	    
+		this.initialize();
 	}
 	
 	/*
@@ -452,6 +456,8 @@ public class Picture {
 	    }
 	    
 	    this.bufferedImage = mirrorImg;
+	    
+		this.initialize();
 	}
 	
 	/*
@@ -472,5 +478,39 @@ public class Picture {
 	    }
 	    
 	    this.bufferedImage = mirrorImg;
+	    
+		this.initialize();
+	}
+	
+	/*
+	 * Applies thresholding to the picture.
+	 * @param threshold Number given to be applied.
+	 */
+	public void thresholding(int threshold){
+			    
+		BufferedImage thresholdImg = new BufferedImage(this.getWidth(), 
+				this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		
+	    for(int x = 0; x < thresholdImg.getWidth(); x++){
+	        for(int y = 0; y < thresholdImg.getHeight(); y++){
+
+	        	Color c = new Color(this.bufferedImage.getRGB(x, y));
+	        	int grayScale = (int) (((c.getRed() + c.getGreen() + c.getBlue()) / 3) + 0.5);
+	        	
+	        	int newRGB;
+	        	if (grayScale >= threshold){
+	        		newRGB = Color.BLACK.getRGB();
+	        	}
+	        	else {
+	        		newRGB = Color.WHITE.getRGB();
+	        	}
+	        		
+	        	thresholdImg.setRGB(x, y, newRGB);
+	        }
+	    }
+	    
+	    this.bufferedImage = thresholdImg;
+
+		this.initialize();
 	}
 }
