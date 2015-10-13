@@ -513,4 +513,108 @@ public class Picture {
 
 		this.initialize();
 	}
+	
+	private void gaussianFilter(){
+		
+		int[][] kernel = {
+				{1,2,1}, 
+				{2,4,2}, 
+				{1,2,1} 
+		};
+	 	
+		BufferedImage newImg = new BufferedImage(this.getWidth(), 
+				this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+		int i,j;
+		double v = 0, z = 0;
+		
+		for (int y = 1; y < height -1; y++) {
+			
+			for (int x = 1; x < width -1; x++) {
+				
+				z = 0;
+				for (i = 0; i < 3; i++){
+					
+					for (j = 0; j < 3; j++){
+						
+						Color c = new Color(this.bufferedImage.getRGB(x + (i-1), y + (j-1)));
+						v = (((c.getRed() + c.getGreen() + c.getBlue()) / 3));
+
+						z += v * kernel[i][j];
+					}
+				}
+	        	
+				int newColor = ((int) (z/16));
+				Color c = new Color(newColor, newColor, newColor);
+	        	newImg.setRGB(x, y, c.getRGB());
+			}
+		}
+		
+	    this.bufferedImage = newImg;
+
+		this.initialize();
+	}
+	
+	private void detectBorders(int[][] xKernel, int[][] yKernel, int threshold) {
+		
+		this.gaussianFilter();
+		
+		BufferedImage newImg = new BufferedImage(this.getWidth(), 
+				this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+		int i,j;
+		double v, gx, gy, g = 0;
+		
+		for (int y = 1; y < height -1; y++) {
+			
+			for (int x = 1; x < width -1; x++) {
+				
+				gx = gy = 0;
+				for (i = 0; i < 3; i++){
+					
+					for (j = 0; j < 3; j++){
+						
+						Color c = new Color(this.bufferedImage.getRGB(x + (i-1), y + (j-1)));
+						v = (((c.getRed() + c.getGreen() + c.getBlue()) / 3));
+
+						gx += v * xKernel[i][j];
+						gy += v * yKernel[i][j];
+					}
+				}
+				
+				g = Math.sqrt(Math.pow(gx, 2) + Math.pow(gy, 2));
+				int newRGB = Color.BLACK.getRGB();
+	        	if (g > threshold)
+	        		newRGB = Color.WHITE.getRGB();	        		
+	        		
+	        	newImg.setRGB(x, y, newRGB);
+			}
+		}
+		
+	    this.bufferedImage = newImg;
+
+		this.initialize();
+	}
+	
+	public void detectBordersRoberts(){
+		
+		int[][] xKernel = { {0,0,0}, {0,-1,0}, {0,0,1} };
+	 	int[][] yKernel = { {0,0,0}, {0,0,-1}, {0,1,0} };
+	 	int threshold = 20;
+	 	
+		this.detectBorders(xKernel, yKernel, threshold);
+	}
+	
+	public void detectBordersSobel(){
+		
+		int[][] xKernel = { {1,0,-1}, {2,0,-2}, {1,0,-1} };
+	 	int[][] yKernel = { {1,2,1}, {0,0,0}, {-1,-2,-1} };
+	 	int threshold = 100;
+	 	
+		this.detectBorders(xKernel, yKernel, threshold); 
+	}
 }

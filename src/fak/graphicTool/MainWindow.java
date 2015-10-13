@@ -105,6 +105,12 @@ public class MainWindow {
 	@UsesMessagesText
 	private JMenuItem mntmVertically;
 	@UsesMessagesText
+	private JMenuItem mntmRoberts;
+	@UsesMessagesText
+	private JMenuItem mntmSobel;
+	@UsesMessagesText
+	private JMenuItem mnBorderDetection;
+	@UsesMessagesText
 	private JCheckBox chckbxStretchImage;
 	
 	private JLabel lbImageViewer;
@@ -346,6 +352,27 @@ public class MainWindow {
 			}
 		});
 		this.mnTools.add(this.mntmThresholding);
+		
+		this.mnBorderDetection = new JMenu(Messages.getString("MainWindow.mnBorderDetection.text"));
+		mnTools.add(this.mnBorderDetection);
+		
+		this.mntmRoberts = new JMenuItem(Messages.getString("MainWindow.mntmRoberts.text"));
+		this.mntmRoberts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.detectBordersRoberts();
+				refreshPictureInfo();
+			}
+		});
+		this.mnBorderDetection.add(mntmRoberts);
+		
+		this.mntmSobel = new JMenuItem(Messages.getString("MainWindow.mntmSobel.text"));
+		this.mntmSobel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				picture.detectBordersSobel();
+				refreshPictureInfo();
+			}
+		});
+		this.mnBorderDetection.add(mntmSobel);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
