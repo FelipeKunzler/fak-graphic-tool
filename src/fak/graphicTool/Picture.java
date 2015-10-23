@@ -514,6 +514,9 @@ public class Picture {
 		this.initialize();
 	}
 	
+	/*
+	 * Applies guassian filter that prepares the image to have its borders detected.
+	 */
 	private void gaussianFilter(){
 		
 		int[][] kernel = {
@@ -557,6 +560,12 @@ public class Picture {
 		this.initialize();
 	}
 	
+	/*
+	 * Detect borders
+	 * @param xKernel Kernel in X axis.
+	 * @param yKernel Kernel in Y axis.
+	 * @param threshold Threshold to be used.
+	 */
 	private void detectBorders(int[][] xKernel, int[][] yKernel, int threshold) {
 		
 		this.gaussianFilter();
@@ -600,6 +609,9 @@ public class Picture {
 		this.initialize();
 	}
 	
+	/*
+	 * Applies Roberts' borders detection method.
+	 */
 	public void detectBordersRoberts(){
 		
 		int[][] xKernel = { {0,0,0}, {0,-1,0}, {0,0,1} };
@@ -609,6 +621,9 @@ public class Picture {
 		this.detectBorders(xKernel, yKernel, threshold);
 	}
 	
+	/*
+	 * Applies Sobel's borders detection method.
+	 */
 	public void detectBordersSobel(){
 		
 		int[][] xKernel = { {1,0,-1}, {2,0,-2}, {1,0,-1} };
@@ -617,4 +632,130 @@ public class Picture {
 	 	
 		this.detectBorders(xKernel, yKernel, threshold); 
 	}
+	
+	/*
+	 * Binarizes the picture, if the grayScale of the pixel is 
+	 * greater or equal to 50, gets black, white otherwise.
+	 */
+	private void binarize(){
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+
+		BufferedImage newImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		for (int y = 0; y < height; y++) {
+			
+			for (int x = 0; x < width; x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				int grayScale = (((c.getRed() + c.getGreen() + c.getBlue()) / 3));
+								
+				if (grayScale < 50){
+					
+					newImg.setRGB(x, y, Color.BLACK.getRGB());
+				}
+				else{
+					newImg.setRGB(x, y, Color.WHITE.getRGB());
+				}
+	        }
+	    }
+	
+	    this.bufferedImage = newImg;
+	}
+	
+	/*
+	 * Applies erosion method.
+	 */
+	public void erosion(){
+			
+		this.binarize();
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+
+		BufferedImage newImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		for (int y = 0; y < height; y++) {
+			
+			for (int x = 0; x < width; x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				if (c.getRGB() == Color.WHITE.getRGB()){
+					
+					newImg.setRGB(x, y, Color.WHITE.getRGB());
+					
+					if (x > 0) newImg.setRGB(x-1, y, Color.WHITE.getRGB());
+					if (y > 0) newImg.setRGB(x, y-1, Color.WHITE.getRGB());
+					if (x < width - 1) newImg.setRGB(x+1, y, Color.WHITE.getRGB());
+	                if (y < height - 1) newImg.setRGB(x, y+1, Color.WHITE.getRGB());
+	                
+				}
+				else {
+					newImg.setRGB(x, y, Color.BLACK.getRGB());
+				}
+	        }
+	    }
+		
+	    this.bufferedImage = newImg;
+
+		this.initialize();
+	}
+	
+	/*
+	 * Applies dilation method.
+	 */
+	public void dilation(){
+		
+		this.binarize();
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+
+		BufferedImage newImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		for (int y = 0; y < height; y++) {
+			
+			for (int x = 0; x < width; x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				if (c.getRGB() == Color.BLACK.getRGB()){
+					
+					newImg.setRGB(x, y, Color.BLACK.getRGB());
+					
+	                if (x > 0) newImg.setRGB(x-1, y, Color.BLACK.getRGB());
+	                if (y > 0) newImg.setRGB(x, y-1, Color.BLACK.getRGB());
+	                if (x < width - 1) newImg.setRGB(x+1, y, Color.BLACK.getRGB());
+	                if (y < height - 1) newImg.setRGB(x, y+1, Color.BLACK.getRGB());
+	                
+				}
+				else {
+					newImg.setRGB(x, y, Color.WHITE.getRGB());
+				}
+			}				
+	    }
+		
+	    this.bufferedImage = newImg;
+
+		this.initialize();
+	}
+	
+	/*
+	 * Applies opening method.
+	 */
+	public void opening(){
+		
+		this.erosion();
+		this.dilation();
+	}
+	
+	/*
+	 * Applies closing method.
+	 */
+	public void closing(){
+		
+		this.dilation();
+		this.erosion();
+	}
+	
 }

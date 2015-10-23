@@ -73,6 +73,16 @@ public class MainWindow {
 	@UsesMessagesText
 	private JMenu mnHelp;
 	@UsesMessagesText
+	private JMenu mnMorphology;
+	@UsesMessagesText
+	private JMenuItem mntmErosion;
+	@UsesMessagesText
+	private JMenuItem mntmDilation;
+	@UsesMessagesText
+	private JMenuItem mntmOpening;
+	@UsesMessagesText
+	private JMenuItem mntmClosing;
+	@UsesMessagesText
 	private JMenuItem mnLanguage;
 	@UsesMessagesText
 	private JMenuItem mntmAbout;
@@ -373,6 +383,46 @@ public class MainWindow {
 			}
 		});
 		this.mnBorderDetection.add(mntmSobel);
+		
+		this.mnMorphology = new JMenu(Messages.getString("MainWindow.mnMorphology.text"));
+		menuBar.add(this.mnMorphology);
+		
+		this.mntmErosion = new JMenuItem(Messages.getString("MainWindow.mntmErosion.text"));
+		this.mntmErosion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMorphology.add(this.mntmErosion);
+		
+		this.mntmDilation = new JMenuItem(Messages.getString("MainWindow.mntmDilation.text"));
+		this.mntmDilation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.dilation();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMorphology.add(this.mntmDilation);
+		
+		this.mntmOpening = new JMenuItem(Messages.getString("MainWindow.mntmOpening.text"));
+		this.mntmOpening.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.opening();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMorphology.add(this.mntmOpening);
+		
+		this.mntmClosing = new JMenuItem(Messages.getString("MainWindow.mntmClosing.text"));
+		this.mntmClosing.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				picture.closing();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMorphology.add(this.mntmClosing);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
