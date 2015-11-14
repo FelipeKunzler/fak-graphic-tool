@@ -173,16 +173,22 @@ public class MainWindow {
 		
 		initializeComponents();
 		
-		BufferedImage defaultImage = null;
+		loadPictureFromResouces("lena.png");
+	}
+	
+	/*
+	 * Load a picture from resources.
+	 */
+	private void loadPictureFromResouces(String name){
+		BufferedImage img = null;
 		try {
-			defaultImage = ImageIO.read(ClassLoader.getSystemClassLoader().getResourceAsStream("lena.png"));
+			img = ImageIO.read(ClassLoader.getSystemClassLoader().getResourceAsStream(name));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		this.picture = new Picture(defaultImage);
-		
-		this.refreshPictureInfo();
+		this.picture = new Picture(img);
+		refreshPictureInfo();
 	}
 
 	/**
@@ -454,7 +460,8 @@ public class MainWindow {
 		this.mntmLoadRectangle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				loadPictureFromResouces("rectangle.png");
+				picture.extractRetangle(frame);
 				refreshPictureInfo();
 			}
 		});
@@ -464,7 +471,7 @@ public class MainWindow {
 		this.mntmExtractInfoRectangle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				picture.extractRetangle(frame);
 				refreshPictureInfo();
 			}
 		});
@@ -477,7 +484,8 @@ public class MainWindow {
 		this.mntmLoadTwoCircles.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				loadPictureFromResouces("twoCircles.png");
+				picture.extractTwoCircles(frame);
 				refreshPictureInfo();
 			}
 		});
@@ -487,7 +495,7 @@ public class MainWindow {
 		this.mntmExtractInfoTwoCircles.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				picture.extractTwoCircles(frame);
 				refreshPictureInfo();
 			}
 		});
@@ -500,7 +508,8 @@ public class MainWindow {
 		this.mntmLoadObjs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				loadPictureFromResouces("multipleObjects.png");
+				picture.extractMultipleObjects(1, 100);
 				refreshPictureInfo();
 			}
 		});
@@ -510,7 +519,7 @@ public class MainWindow {
 		this.mntmExtractInfoObjs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//picture.erosion();
+				picture.extractMultipleObjects(1, 150);
 				refreshPictureInfo();
 			}
 		});

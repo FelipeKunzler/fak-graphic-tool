@@ -1,17 +1,24 @@
 package fak.graphicTool;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class Picture {
 	
@@ -758,4 +765,204 @@ public class Picture {
 		this.erosion();
 	}
 	
+	/*
+	 * Extracts the rectangle's area and perimeter.
+	 */
+	public void extractRetangle(Frame frame){
+
+		this.binarize();
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+		
+		// Gets the pixel where the rectangle starts.
+		int xRectangle = 0, yRectangle = 0; 
+		mainLoop:
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				if (c.getRGB() == Color.BLACK.getRGB()){
+	                xRectangle = x;
+	                yRectangle = y;
+	                break mainLoop;
+				}
+			}				
+	    }
+		
+		// Gets the size of sideY and sideX by iterating the img to a certain direction.
+		int sizeSideY=0,sizeSideX=0;
+		for (int y = yRectangle; y < height; y++) {
+			Color c = new Color(this.bufferedImage.getRGB(xRectangle, y));
+			if (c.getRGB() == Color.BLACK.getRGB()){
+				sizeSideY++;
+			}
+			else{
+				break;
+			}
+		}
+		
+		for (int x = xRectangle; x < height; x++) {
+			Color c = new Color(this.bufferedImage.getRGB(x, yRectangle));
+			if (c.getRGB() == Color.BLACK.getRGB()){
+				sizeSideX++;
+			}
+			else{
+				break;
+			}
+		}
+		
+		int area = sizeSideX * sizeSideY;
+		int perimeter = (sizeSideX * 2) + (sizeSideY * 2);
+		
+		String message = String.format(Messages.getString("MainWindow.rectangleSuccess.text"), area, perimeter);
+		JOptionPane.showMessageDialog(frame, message, 
+				Messages.getString("MainWindow.mnRectangle.text"), JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	/*
+	 * Extracts the smaller circle's area;
+	 * The biggest circle's perimeter;
+	 * Both circles' circularity.
+	 */
+	public void extractTwoCircles(Frame frame){
+		this.binarize();
+		
+		int height = this.getHeight();
+		int width = this.getWidth();
+		
+		// Gets the pixel where the circle starts.
+		int xCircle = 0, yCircle = 0; 
+		mainLoop:
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				if (c.getRGB() == Color.BLACK.getRGB()){
+	                xCircle = x;
+	                yCircle = y;
+	                break mainLoop;
+				}
+			}				
+	    }
+
+		int perimeter = perimeterObject(xCircle, yCircle);
+		this.initialize();
+		System.out.println(perimeter);
+		
+	}
+	
+	public static List<Component> getAllComponents(final Container c) {
+	    Component[] comps = c.getComponents();
+	    List<Component> compList = new ArrayList<Component>();
+	    for (Component comp : comps) {
+	        compList.add(comp);
+	        if (comp instanceof Container)
+	            compList.addAll(getAllComponents((Container) comp));
+	    }
+	    return compList;
+	}
+	
+	public JLabel imgViewer;
+	
+	private int perimeterObject(int x, int y){
+		return perimeterObject(x, y, 0);
+	}
+	
+	// É preto? Tem mais de um white neighbor? RED!
+	private int perimeterObject(int x, int y, int count){
+		
+		int nextX, nextY;
+		
+		nextX = x-1; nextY = y-1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x; nextY = y-1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x+1; nextY = y-1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x+1; nextY = y;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x+1; nextY = y+1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x; nextY = y+1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x-1; nextY = y+1;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+		
+		nextX = x-1; nextY = y;
+		if (isOnBorder(nextX, nextY)){
+			return paintPixel(nextX, nextY, count);
+		}
+
+		return count;
+	}
+	
+	private int paintPixel (int x, int y, int count){
+
+		this.bufferedImage.setRGB(x, y, Color.RED.getRGB());
+		return perimeterObject(x, y, count+1);
+	}
+	
+	/*
+	 * Verifies if a given pixel is black and has more than two white/red neighbors
+	 */
+	private boolean isOnBorder(int x, int y){
+		
+		Color c = new Color(this.bufferedImage.getRGB(x, y));
+		if (c.getRGB() != Color.BLACK.getRGB()){
+			return false;
+		}
+		
+		int whiteOrRedNeighbors = 0;
+		whiteOrRedNeighbors += isWhiteOrRed(x-1, y-1);	
+		whiteOrRedNeighbors += isWhiteOrRed(x, y-1);
+		whiteOrRedNeighbors += isWhiteOrRed(x+1, y-1);
+		whiteOrRedNeighbors += isWhiteOrRed(x+1, y);
+		whiteOrRedNeighbors += isWhiteOrRed(x+1, y+1);
+		whiteOrRedNeighbors += isWhiteOrRed(x, y+1);
+		whiteOrRedNeighbors += isWhiteOrRed(x-1, y+1);
+		whiteOrRedNeighbors += isWhiteOrRed(x-1, y);
+		
+		return whiteOrRedNeighbors >= 2;
+	}
+	
+	/*
+	 * Verifies if a given pixel is white or red.
+	 */
+	private int isWhiteOrRed(int x, int y){
+		
+		Color c = new Color(this.bufferedImage.getRGB(x, y));
+		if (c.getRGB() == Color.WHITE.getRGB() || c.getRGB() == Color.RED.getRGB()){
+			return 1;
+		}
+		
+		return 0;
+	}
+	
+	/*
+	 * Paints objects that are inside a given threshold.
+	 */
+	public void extractMultipleObjects(int minArea, int maxArea){
+		
+	}	
 }
