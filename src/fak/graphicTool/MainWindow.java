@@ -122,6 +122,26 @@ public class MainWindow {
 	private JMenuItem mnBorderDetection;
 	@UsesMessagesText
 	private JCheckBox chckbxStretchImage;
+	@UsesMessagesText
+	private JMenu mnCharExtraction;
+	@UsesMessagesText
+	private JMenu mnRectangle;
+	@UsesMessagesText
+	private JMenu mnTwoCircles;
+	@UsesMessagesText
+	private JMenu mnMultipleObjs;
+	@UsesMessagesText
+	private JMenuItem mntmExtractInfoRectangle;
+	@UsesMessagesText
+	private JMenuItem mntmExtractInfoTwoCircles;
+	@UsesMessagesText
+	private JMenuItem mntmExtractInfoObjs;
+	@UsesMessagesText
+	private JMenuItem mntmLoadRectangle;
+	@UsesMessagesText
+	private JMenuItem mntmLoadTwoCircles;
+	@UsesMessagesText
+	private JMenuItem mntmLoadObjs;
 	
 	private JLabel lbImageViewer;
 	private JLabel lbDimension;
@@ -423,6 +443,78 @@ public class MainWindow {
 			}
 		});
 		this.mnMorphology.add(this.mntmClosing);
+		
+		this.mnCharExtraction = new JMenu(Messages.getString("MainWindow.mnCharExtraction.text"));
+		menuBar.add(this.mnCharExtraction);
+		
+		this.mnRectangle = new JMenu(Messages.getString("MainWindow.mnRectangle.text"));
+		this.mnCharExtraction.add(this.mnRectangle);
+		
+		this.mntmLoadRectangle = new JMenuItem(Messages.getString("MainWindow.mntmLoadRectangle.text"));
+		this.mntmLoadRectangle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnRectangle.add(this.mntmLoadRectangle);
+
+		this.mntmExtractInfoRectangle = new JMenuItem(Messages.getString("MainWindow.mntmExtractInfoRectangle.text"));
+		this.mntmExtractInfoRectangle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnRectangle.add(this.mntmExtractInfoRectangle);
+		
+		this.mnTwoCircles = new JMenu(Messages.getString("MainWindow.mnTwoCircles.text"));
+		this.mnCharExtraction.add(this.mnTwoCircles);
+		
+		this.mntmLoadTwoCircles = new JMenuItem(Messages.getString("MainWindow.mntmLoadTwoCircles.text"));
+		this.mntmLoadTwoCircles.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnTwoCircles.add(this.mntmLoadTwoCircles);
+
+		this.mntmExtractInfoTwoCircles = new JMenuItem(Messages.getString("MainWindow.mntmExtractInfoTwoCircles.text"));
+		this.mntmExtractInfoTwoCircles.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnTwoCircles.add(this.mntmExtractInfoTwoCircles);
+				
+		this.mnMultipleObjs = new JMenu(Messages.getString("MainWindow.mnMultipleObjs.text"));
+		this.mnCharExtraction.add(this.mnMultipleObjs);
+		
+		this.mntmLoadObjs = new JMenuItem(Messages.getString("MainWindow.mntmLoadObjs.text"));
+		this.mntmLoadObjs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMultipleObjs.add(this.mntmLoadObjs);
+
+		this.mntmExtractInfoObjs = new JMenuItem(Messages.getString("MainWindow.mntmExtractInfoObjs.text"));
+		this.mntmExtractInfoObjs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//picture.erosion();
+				refreshPictureInfo();
+			}
+		});
+		this.mnMultipleObjs.add(this.mntmExtractInfoObjs);
 		
 		this.mnHelp = new JMenu(Messages.getString("MainWindow.mnHelp.text"));
 		menuBar.add(this.mnHelp);
