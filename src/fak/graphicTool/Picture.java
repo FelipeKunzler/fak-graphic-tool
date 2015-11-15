@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -764,34 +766,6 @@ public class Picture {
 		this.dilation();
 		this.erosion();
 	}
-	
-	public class Point{
-		
-		private int x;
-		private int y;
-		
-		public Point(int x, int y){
-			this.setX(x);
-			this.setY(y);
-		}
-
-		public int getX() {
-			return x;
-		}
-
-		public void setX(int x) {
-			this.x = x;
-		}
-
-		public int getY() {
-			return y;
-		}
-
-		public void setY(int y) {
-			this.y = y;
-		}
-				
-	}
 
 	private Point getFirstBlackPixel(){
 
@@ -854,22 +828,83 @@ public class Picture {
 	 * Both circles' circularity.
 	 */
 	public void extractTwoCircles(Frame frame){
+		
 		this.binarize();
-				
+		BufferedImage originalImg = Picture.copyImage(this.bufferedImage);
+		
 		// Gets the pixel where the 1 st circle starts.
-		Point circle = getFirstBlackPixel();
-
-		int perimeter = perimeterObject(circle.x, circle.y);
-		System.out.println(perimeter);
+		Point circle1 = getFirstBlackPixel();
+		
+		int perimeter1 = perimeterObject(circle1.x, circle1.y);		
+		int area1 = floodfill(circle1.x, circle1.y, Color.RED, Color.BLACK);
+		double circularity1 = Math.pow(perimeter1, 2) / (4 * Math.PI * area1);
+		
+		// Gets the pixel where the 2 st circle starts.
+		Point circle2 = getFirstBlackPixel();
+		
+		int perimeter2 = perimeterObject(circle2.x, circle2.y);		
+		int area2 = floodfill(circle2.x, circle2.y, Color.RED, Color.BLACK);
+		double circularity2 = Math.pow(perimeter2, 2) / (4 * Math.PI * area2);
+		
+		this.bufferedImage = originalImg;
+		
+		int biggerArea = area1 > area2 ? area1 : area2;
+		int smallerPerimeter = perimeter1 < perimeter2 ? perimeter1 : perimeter2;
+		double biggerCircularity, smallerCircularity;
+		
+		if (area1 > area2){
+			biggerCircularity = circularity1;
+			smallerCircularity = circularity2;
+		}
+		else{
+			biggerCircularity = circularity2;
+			smallerCircularity = circularity1;
+		}
+		
+		System.out.println("1 - A: " + area1 + " P: " + perimeter1 + " C: " + circularity1);
+		System.out.println("2 - A: " + area2 + " P: " + perimeter2 + " C: " + circularity2);
+		
+		String message = String.format(Messages.getString("MainWindow.circlesSuccess.text"), biggerArea, biggerCircularity, smallerPerimeter, smallerCircularity);
+		JOptionPane.showMessageDialog(frame, message, 
+				Messages.getString("MainWindow.mnTwoCircles.text"), JOptionPane.INFORMATION_MESSAGE);
 		
 		this.initialize();
 	}
+			
+	private int floodfill (int x, int y, Color newColor, Color oldColor){
+		
+		int area = 0;
+		List<Point> queue = new LinkedList<Point>();
+		queue.add(new Point(x, y));
+		while (!queue.isEmpty()) {
+						
+			Point p = queue.remove(0);
+			if (this.bufferedImage.getRGB(p.x, p.y) == oldColor.getRGB()){
+				
+				this.bufferedImage.setRGB(p.x, p.y, newColor.getRGB());
+				area++;
+				
+                queue.add(new Point(p.x + 1, p.y));
+                queue.add(new Point(p.x - 1, p.y));
+                queue.add(new Point(p.x, p.y + 1));
+                queue.add(new Point(p.x, p.y - 1));
+			}		
+		}
 
+		return area;
+	}
+	
 	/*
 	 * Gets an object's perimeter.
 	 */
 	private int perimeterObject(int x, int y){
-		return perimeterObject(x, y, 0);
+		BufferedImage originalImg = Picture.copyImage(this.bufferedImage);
+		int perimeter = perimeterObject(x, y, 0);
+		
+		// Reverts red border.
+		this.bufferedImage = originalImg;
+		
+		return perimeter;
 	}
 	
 	/*
