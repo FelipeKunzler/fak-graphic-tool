@@ -765,6 +765,49 @@ public class Picture {
 		this.erosion();
 	}
 	
+	public class Point{
+		
+		private int x;
+		private int y;
+		
+		public Point(int x, int y){
+			this.setX(x);
+			this.setY(y);
+		}
+
+		public int getX() {
+			return x;
+		}
+
+		public void setX(int x) {
+			this.x = x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public void setY(int y) {
+			this.y = y;
+		}
+				
+	}
+
+	private Point getFirstBlackPixel(){
+
+		for (int y = 0; y < this.getHeight(); y++) {
+			for (int x = 0; x < this.getWidth(); x++) {
+				
+				Color c = new Color(this.bufferedImage.getRGB(x, y));
+				if (c.getRGB() == Color.BLACK.getRGB()){
+	                return new Point(x, y);
+				}
+			}				
+	    }
+		
+		return new Point(-1, -1);
+	}
+	
 	/*
 	 * Extracts the rectangle's area and perimeter.
 	 */
@@ -772,28 +815,13 @@ public class Picture {
 
 		this.binarize();
 		
-		int height = this.getHeight();
-		int width = this.getWidth();
-		
 		// Gets the pixel where the rectangle starts.
-		int xRectangle = 0, yRectangle = 0; 
-		mainLoop:
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				
-				Color c = new Color(this.bufferedImage.getRGB(x, y));
-				if (c.getRGB() == Color.BLACK.getRGB()){
-	                xRectangle = x;
-	                yRectangle = y;
-	                break mainLoop;
-				}
-			}				
-	    }
+		Point rectanglePixel = getFirstBlackPixel();		
 		
 		// Gets the size of sideY and sideX by iterating the img to a certain direction.
 		int sizeSideY=0,sizeSideX=0;
-		for (int y = yRectangle; y < height; y++) {
-			Color c = new Color(this.bufferedImage.getRGB(xRectangle, y));
+		for (int y = rectanglePixel.y; y < this.getHeight(); y++) {
+			Color c = new Color(this.bufferedImage.getRGB(rectanglePixel.x, y));
 			if (c.getRGB() == Color.BLACK.getRGB()){
 				sizeSideY++;
 			}
@@ -802,8 +830,8 @@ public class Picture {
 			}
 		}
 		
-		for (int x = xRectangle; x < height; x++) {
-			Color c = new Color(this.bufferedImage.getRGB(x, yRectangle));
+		for (int x = rectanglePixel.x; x < this.getWidth(); x++) {
+			Color c = new Color(this.bufferedImage.getRGB(x, rectanglePixel.y));
 			if (c.getRGB() == Color.BLACK.getRGB()){
 				sizeSideX++;
 			}
@@ -827,49 +855,26 @@ public class Picture {
 	 */
 	public void extractTwoCircles(Frame frame){
 		this.binarize();
-		
-		int height = this.getHeight();
-		int width = this.getWidth();
-		
-		// Gets the pixel where the circle starts.
-		int xCircle = 0, yCircle = 0; 
-		mainLoop:
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
 				
-				Color c = new Color(this.bufferedImage.getRGB(x, y));
-				if (c.getRGB() == Color.BLACK.getRGB()){
-	                xCircle = x;
-	                yCircle = y;
-	                break mainLoop;
-				}
-			}				
-	    }
+		// Gets the pixel where the 1 st circle starts.
+		Point circle = getFirstBlackPixel();
 
-		int perimeter = perimeterObject(xCircle, yCircle);
-		this.initialize();
+		int perimeter = perimeterObject(circle.x, circle.y);
 		System.out.println(perimeter);
 		
+		this.initialize();
 	}
-	
-	public static List<Component> getAllComponents(final Container c) {
-	    Component[] comps = c.getComponents();
-	    List<Component> compList = new ArrayList<Component>();
-	    for (Component comp : comps) {
-	        compList.add(comp);
-	        if (comp instanceof Container)
-	            compList.addAll(getAllComponents((Container) comp));
-	    }
-	    return compList;
-	}
-	
-	public JLabel imgViewer;
-	
+
+	/*
+	 * Gets an object's perimeter.
+	 */
 	private int perimeterObject(int x, int y){
 		return perimeterObject(x, y, 0);
 	}
 	
-	// É preto? Tem mais de um white neighbor? RED!
+	/*
+	 * Gets an object's perimeter.
+	 */
 	private int perimeterObject(int x, int y, int count){
 		
 		int nextX, nextY;
@@ -917,6 +922,9 @@ public class Picture {
 		return count;
 	}
 	
+	/*
+	 * Paints the given pixel red. And verifies this pixel as well.
+	 */
 	private int paintPixel (int x, int y, int count){
 
 		this.bufferedImage.setRGB(x, y, Color.RED.getRGB());
@@ -924,7 +932,7 @@ public class Picture {
 	}
 	
 	/*
-	 * Verifies if a given pixel is black and has more than two white/red neighbors
+	 * Verifies if a given pixel is black and has more than two white neighbors
 	 */
 	private boolean isOnBorder(int x, int y){
 		
@@ -933,26 +941,26 @@ public class Picture {
 			return false;
 		}
 		
-		int whiteOrRedNeighbors = 0;
-		whiteOrRedNeighbors += isWhiteOrRed(x-1, y-1);	
-		whiteOrRedNeighbors += isWhiteOrRed(x, y-1);
-		whiteOrRedNeighbors += isWhiteOrRed(x+1, y-1);
-		whiteOrRedNeighbors += isWhiteOrRed(x+1, y);
-		whiteOrRedNeighbors += isWhiteOrRed(x+1, y+1);
-		whiteOrRedNeighbors += isWhiteOrRed(x, y+1);
-		whiteOrRedNeighbors += isWhiteOrRed(x-1, y+1);
-		whiteOrRedNeighbors += isWhiteOrRed(x-1, y);
+		int whiteNeighbors = 0;
+		whiteNeighbors += isWhite(x-1, y-1);	
+		whiteNeighbors += isWhite(x, y-1);
+		whiteNeighbors += isWhite(x+1, y-1);
+		whiteNeighbors += isWhite(x+1, y);
+		whiteNeighbors += isWhite(x+1, y+1);
+		whiteNeighbors += isWhite(x, y+1);
+		whiteNeighbors += isWhite(x-1, y+1);
+		whiteNeighbors += isWhite(x-1, y);
 		
-		return whiteOrRedNeighbors >= 2;
+		return whiteNeighbors >= 2;
 	}
 	
 	/*
-	 * Verifies if a given pixel is white or red.
+	 * Verifies if a given pixel is white.
 	 */
-	private int isWhiteOrRed(int x, int y){
+	private int isWhite(int x, int y){
 		
 		Color c = new Color(this.bufferedImage.getRGB(x, y));
-		if (c.getRGB() == Color.WHITE.getRGB() || c.getRGB() == Color.RED.getRGB()){
+		if (c.getRGB() == Color.WHITE.getRGB()){
 			return 1;
 		}
 		
