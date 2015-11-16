@@ -509,8 +509,7 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				loadPictureFromResouces("multipleObjects.png");
-				picture.extractMultipleObjects(1, 100);
-				refreshPictureInfo();
+				onExtractInfoObjs();
 			}
 		});
 		this.mnMultipleObjs.add(this.mntmLoadObjs);
@@ -519,8 +518,7 @@ public class MainWindow {
 		this.mntmExtractInfoObjs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				picture.extractMultipleObjects(1, 150);
-				refreshPictureInfo();
+				onExtractInfoObjs();
 			}
 		});
 		this.mnMultipleObjs.add(this.mntmExtractInfoObjs);
@@ -609,6 +607,48 @@ public class MainWindow {
 		this.lbDimension.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.lbDimension.setBounds(463, 433, 165, 14);
 		frame.getContentPane().add(this.lbDimension);
+	}
+	
+	private void onExtractInfoObjs(){
+		
+		JTextField tfMin = new JTextField();
+		tfMin.setText("1");
+		JTextField tfMax = new JTextField();
+		tfMax.setText("5000");
+		
+		Object[] options = {
+			Messages.getString("MainWindow.dialogAreaMin.text"), tfMin,
+			Messages.getString("MainWindow.dialogAreaMax.text"), tfMax
+		};
+		
+		int option = JOptionPane.showOptionDialog(frame, options, Messages.getString("MainWindow.mnMultipleObjs.text"), 
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, 
+				null, new Object[]{"OK", "Cancel"}, options[1]);
+		if (option == JOptionPane.OK_OPTION) {
+		
+			int min;
+			int max;
+			try {
+				min = Integer.parseInt(tfMin.getText());
+				max = Integer.parseInt(tfMax.getText());
+			}
+			catch(Exception e) {
+				min = -1;
+				max = -1;
+			}
+			
+			if (min >= 0 && max >= min){
+				
+				picture.extractMultipleObjects(min, max, frame);
+				refreshPictureInfo();
+			}
+			else {
+				JOptionPane.showMessageDialog(frame,
+						Messages.getString("MainWindow.dialogAreaError.text"),
+						Messages.getString("MainWindow.mnMultipleObjs.text"),
+					    JOptionPane.ERROR_MESSAGE);									
+			}
+	    }
 	}
 	
 	private void refreshTexts(){
